@@ -41,8 +41,8 @@ import HelloWorld from '@/components/HelloWorld.vue';
                   <span class="icon-file-text2" v-else></span>
                   <span>{{file.name}}</span>
                 </td>
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.last_modify_time}}</td>
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.size}}</td>
+                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.last_modify_time.replace(/[T,Z]/g,"  ")}}</td>
+                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{formatSize(file.size)}}</td>
               </tr>
             </tbody>
           </table>
@@ -118,6 +118,21 @@ export default {
         this.reg = /""/
         console.log(res)
       })
+    },
+     formatSize(size) {
+      let result;
+      // size为字节
+      if(size/1024/1024/2014 >=1) {
+        // 可以转化为GB就转化为GB
+        result = (size/1024/1024/2014).toFixed(2) + "GB";
+      } else if (size/1024/1024 >=1) {
+        // 可以转化为MB就转化为MB
+        result = (size/1024/1024).toFixed(2) + "MB";
+      } else {
+        // 否则转化为KB
+        result = (size/1024).toFixed(2) + "KB";
+      }
+      return result;
     }
   }
 
