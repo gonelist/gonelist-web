@@ -1,4 +1,3 @@
-import HelloWorld from '@/components/HelloWorld.vue';
 <template>
   <div class="content" v-if="Ishow">
     <div class="title">
@@ -41,8 +40,8 @@ import HelloWorld from '@/components/HelloWorld.vue';
                   <span class="icon-file-text2" v-else></span>
                   <span>{{file.name}}</span>
                 </td>
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.last_modify_time.replace(/[T,Z]/g,"  ")}}</td>
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{formatSize(file.size)}}</td>
+                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.last_modify_time | formatTime}}</td>
+                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.size | formatSize}}</td>
               </tr>
             </tbody>
           </table>
@@ -56,8 +55,8 @@ import HelloWorld from '@/components/HelloWorld.vue';
 <script>
 import { getAllFiles,logout } from "../API/api"
 export default {
-  
-  data() {
+  name: "Index",
+  data() {   
     return {
       Ishow: 0,
       files: [],
@@ -65,61 +64,67 @@ export default {
       stack: [],
       keywords: "",
       reg: /""/,
+      searchPath: ""
     }
   },
   created() {
-    getAllFiles().then(res => {
+    getAllFiles().then(res => { 
       console.log(res)
       this.files = res.data;
       this.files = this.files || []
       this.Ishow = res ? 1 : 0;
+      // 通过hash来查找对应的文件夹,需要decodeURI一下
+      let path = decodeURIComponent(window.location.hash).slice(1).split("/");
+      // 将最后的空元素删除
+      path.pop()
+      console.log(path)
       // 栈顶元素始终为当前路径下的数据
       this.stack.push(this.files);
+      for(let i = 1; i < path.length; i++) {
+        // 查找路径
+        let flag = 0;
+        this.files.children.forEach(item => {
+          if(item.name == path[i]){
+            this.files = item;
+            flag = 1; //表示找到
+          }
+        });
+        if(!flag) {
+          // 没有找到对应文件夹就返回主页
+          window.location.hash = "";
+          window.location.reload();
+          break;
+        }
+        // 构造路径栈
+        this.stack.push(this.files);
+      } 
+      // 排序一下
+      this.files.children.sort(this.sortByFileType);
     })
   },
-  methods: {
-    nextFile(index) {
-      if(this.files.children[index].download_url) {
-        // 有下载链接直接下载
-        console.log("下载",this.files.children[index].download_url)
-        window.open(this.files.children[index].download_url, "_blank")
+  watch: {
+    // 监听stack的变化，在路径中添加hash
+    stack() {
+      this.searchPath = "";
+      for(let i = 0; i < this.stack.length; i++) {
+        this.searchPath = this.searchPath + this.stack[i].name + '/';
+      }
+      window.location.hash = this.searchPath;
+    },
+    // $route: {
+    //   handler: function(val, oldVal){
+    //     window.location.reload()
+    //   },
+    //   // 深度观察监听
+    //   deep: true
+    // }
 
-      } else {
-        // 点击文件夹进入下一个文件夹，并使其入栈
-        this.files = this.files.children[index];
-        this.stack.push(this.files);
-      }
-      
-     
+  },
+  filters: {
+    formatTime(time) {
+      return time.replace(/[T,Z]/g,"  ")
     },
-    back() {
-      if(this.stack.length == 1) {
-        console.log("已在根目录，无法返回")
-      } else {
-        this.stack.pop()
-        // 显示栈顶元素
-        this.files = this.stack[this.stack.length-1]
-      }
-      
-    },
-    toPath(index) {
-      //console.log(index);
-      this.stack = this.stack.slice(0, index+1)
-      this.files = this.stack[this.stack.length-1]
-    },
-    search() {
-      this.reg = new RegExp(this.keywords);    
-    },
-    exit() {
-      logout().then(res => {
-        this.files = []
-        this.stack = []
-        this.keywords = ""
-        this.reg = /""/
-        console.log(res)
-      })
-    },
-     formatSize(size) {
+    formatSize(size) {
       let result;
       // size为字节
       if(size/1024/1024/2014 >=1) {
@@ -133,6 +138,62 @@ export default {
         result = (size/1024).toFixed(2) + "KB";
       }
       return result;
+  }
+  },
+  methods: {
+    nextFile(index) {
+      if(this.files.children[index].download_url) {
+        // 有下载链接直接下载
+        console.log("下载",this.files.children[index].download_url)
+        window.open(this.files.children[index].download_url, "_blank")
+
+      } else {
+        // 点击文件夹进入下一个文件夹，并使其入栈
+        this.files = this.files.children[index];
+        this.files.children.sort(this.sortByFileType);
+        this.stack.push(this.files);
+      }
+      
+     
+    },
+    back() {
+      if(this.stack.length == 1) {
+        console.log("已在根目录，无法返回")
+      } else {
+        this.stack.pop()
+        // 显示栈顶元素
+        this.files = this.stack[this.stack.length-1]
+        this.files.children.sort(this.sortByFileType);
+      }
+      
+    },
+    toPath(index) {
+      //console.log(index);
+      this.stack = this.stack.slice(0, index+1)
+      this.files = this.stack[this.stack.length-1]
+      this.files.children.sort(this.sortByFileType);
+    },
+    search() {
+      this.reg = new RegExp(this.keywords);    
+    },
+    exit() {
+      logout().then(res => {
+        this.clear();
+        console.log(res)
+      })
+    },
+    clear() {
+      this.files = [];
+      this.stack = [];
+      this.keywords = "";
+      this.reg = /""/;
+      this.searchPath= "";
+    },
+    sortByFileType(pre, next) {
+      let num1,num2;
+      num1 = pre.is_folder ? 1 : 0;
+      num2 = next.is_folder? 1 : 0;
+      return num2-num1;
     }
   }
 
