@@ -34,9 +34,9 @@
                 <th>时间</th>
                 <th>大小</th>
               </tr>
-              <tr class="item" v-for="(file,index) in files.children" v-bind:key="file.name" @click="nextFile(index)">
+              <tr class="item" v-for="(file,index) in (files.children || [])" v-bind:key="file.name" @click="nextFile(index)">
                 <td class="list-data" v-if=" !keywords || reg.test(file.name)">
-                  <span class="icon-folder-open" v-if="file.children"></span>
+                  <span class="icon-folder-open" v-if="file.is_folder"></span>
                   <span class="icon-file-text2" v-else></span>
                   <span>{{file.name}}</span>
                 </td>
@@ -78,7 +78,6 @@ export default {
       // 将最后的空元素删除
       path.pop()
       console.log(path)
-      // 栈顶元素始终为当前路径下的数据
       this.stack.push(this.files);
       for(let i = 1; i < path.length; i++) {
         // 查找路径
@@ -99,7 +98,7 @@ export default {
         this.stack.push(this.files);
       } 
       // 排序一下
-      this.files.children.sort(this.sortByFileType);
+      this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
     })
   },
   watch: {
@@ -148,9 +147,11 @@ export default {
         window.open(this.files.children[index].download_url, "_blank")
 
       } else {
+        this.keywords = "";
         // 点击文件夹进入下一个文件夹，并使其入栈
         this.files = this.files.children[index];
-        this.files.children.sort(this.sortByFileType);
+        // 排序一下
+        this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
         this.stack.push(this.files);
       }
       
@@ -160,18 +161,22 @@ export default {
       if(this.stack.length == 1) {
         console.log("已在根目录，无法返回")
       } else {
+        this.keywords = "";
         this.stack.pop()
         // 显示栈顶元素
         this.files = this.stack[this.stack.length-1]
-        this.files.children.sort(this.sortByFileType);
+        // 排序一下
+        this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
       }
       
     },
     toPath(index) {
       //console.log(index);
+      this.keywords = "";
       this.stack = this.stack.slice(0, index+1)
       this.files = this.stack[this.stack.length-1]
-      this.files.children.sort(this.sortByFileType);
+      // 排序一下
+      this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
     },
     search() {
       this.reg = new RegExp(this.keywords);    

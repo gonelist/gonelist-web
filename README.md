@@ -1,12 +1,21 @@
-# dir-project
+# GOIndex-Web
 
-## 存在问题
-要实现根据hash去寻找对应文件夹下的文件，需要把路由设置为history模式，打包后的文件放置在根目录，[history配置](https://router.vuejs.org/zh/guide/essentials/history-mode.html#%E5%90%8E%E7%AB%AF%E9%85%8D%E7%BD%AE%E4%BE%8B%E5%AD%90)
+## 项目配置
 
-## 注意
-默认情况下，Vue CLI 会假设你的应用是被部署在一个域名的根路径上，例如https://www.my-app.com/。如果应用被部署在一个子路径上，你就需要用这个选项指定这个子路径。例如，如果你的应用被部署在https://www.my-app.com/my-app/，则设置 publicPath 为 /my-app/。
+在project.config.js里面配置
 
-具体可见 ：[配置](https://cli.vuejs.org/zh/guide/deployment.html#github-pages)
+## publicPath不建议修改
+
+要实现根据hash去寻找对应文件夹下的文件，本项目把路由设置为history模式，[使用history模式要尽量避免使用publicPath](https://cli.vuejs.org/zh/config/#publicpath)，打包后的文件放置在根目录
+
+相对 publicPath 的限制
+
+相对路径的 publicPath 有一些使用上的限制。在以下情况下，应当避免使用相对 publicPath:
+
+- 当使用基于 HTML5 history.pushState 的路由时；
+
+- 当使用 pages 选项构建多页面应用时。
+
 
 同样关于vue-router hash模式与history模式可以参考[官方文档](https://router.vuejs.org/zh/guide/essentials/history-mode.html#%E5%90%8E%E7%AB%AF%E9%85%8D%E7%BD%AE%E4%BE%8B%E5%AD%90)
 
