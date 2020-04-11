@@ -68,8 +68,12 @@ export default {
     }
   },
   created() {
-    getAllFiles().then(res => { 
-      console.log(res)
+    getAllFiles(this.baseURL).then(res => { 
+
+      if(res.data.code == 400) {
+        window.location.href = `${this.baseURL}/login`;
+      }
+      res = res.data
       this.files = res.data;
       this.files = this.files || []
       this.Ishow = res ? 1 : 0;
@@ -182,7 +186,7 @@ export default {
       this.reg = new RegExp(this.keywords);    
     },
     exit() {
-      logout().then(res => {
+      logout(this.baseURL).then(res => {
         this.clear();
         console.log(res)
       })

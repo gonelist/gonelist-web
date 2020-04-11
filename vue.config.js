@@ -1,13 +1,13 @@
 
 const ProjectConfig = require("./project.config")
-// //让打包的时候输出可配置的文件
-// var GenerateAssetPlugin = require('generate-asset-webpack-plugin'); 
-// var createServerConfig = function(compilation){
-//   let cfgJson = {
-//     ApiUrl:"https://goindex.cugxuan.cn:8001/",
-//   };
-//   return JSON.stringify(cfgJson);
-// }
+//让打包的时候输出可配置的文件
+var GenerateAssetPlugin = require('generate-asset-webpack-plugin'); 
+var createServerConfig = function(compilation){
+  let cfgJson = {
+    baseURL:"https://goindex.cugxuan.cn:8001",
+  };
+  return JSON.stringify(cfgJson);
+}
 
 module.exports = {
   //  publicPath: process.env.NODE_ENV === 'production'
@@ -15,17 +15,17 @@ module.exports = {
   //  : '/'
   // 不建议修改
   publicPath: ProjectConfig.publicPath,
-  // configureWebpack: {
-  //   plugins: [
-  //     new GenerateAssetPlugin({
-  //       filename: 'serverconfig.json',
-  //       fn: (compilation, cb) => {
-  //           cb(null, createServerConfig(compilation));
-  //       },
-  //       extraFiles: []
-  //     })
-  //   ]
-  // },
+  configureWebpack: {
+    plugins: [
+      new GenerateAssetPlugin({
+        filename: 'serverconfig.json',
+        fn: (compilation, cb) => {
+            cb(null, createServerConfig(compilation));
+        },
+        extraFiles: []
+      })
+    ]
+  },
   pages: {
     index: {
       // page 的入口

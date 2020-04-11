@@ -1,17 +1,17 @@
-import request from "../utils/request"
+import axios from 'axios'
 
-export function getAllFiles() {
-  return request({
+export function getAllFiles(baseURL) {
+  return axios({
     method: "get",
-    url: "onedrive/getpath",
+    url: `${baseURL}/onedrive/getpath`,
     params: {
       path: '/'
     }
   })
 }
-export function logout() {
-  return request({
+export function logout(baseURL) {
+  return axios({
     method: "get",
-    url: "cancelLogin"
+    url: `${baseURL}/cancelLogin`
   })
 }
