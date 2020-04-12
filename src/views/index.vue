@@ -70,10 +70,9 @@ export default {
   created() {
     getAllFiles(this.baseURL).then(res => { 
 
-      if(res.data.code == 400) {
+      if(res.code == 400) {
         window.location.href = `${this.baseURL}/login`;
       }
-      res = res.data
       this.files = res.data;
       this.files = this.files || []
       this.Ishow = res ? 1 : 0;

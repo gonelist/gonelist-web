@@ -10,10 +10,6 @@ var createServerConfig = function(compilation){
 }
 
 module.exports = {
-  //  publicPath: process.env.NODE_ENV === 'production'
-  //  ? '/dir-project/dist/'
-  //  : '/'
-  // 不建议修改
   publicPath: ProjectConfig.publicPath,
   configureWebpack: {
     plugins: [

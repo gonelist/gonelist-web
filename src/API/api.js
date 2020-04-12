@@ -1,7 +1,7 @@
-import axios from 'axios'
+import request from "../utils/request"
 
 export function getAllFiles(baseURL) {
-  return axios({
+  return request({
     method: "get",
     url: `${baseURL}/onedrive/getpath`,
     params: {
@@ -10,7 +10,7 @@ export function getAllFiles(baseURL) {
   })
 }
 export function logout(baseURL) {
-  return axios({
+  return request({
     method: "get",
     url: `${baseURL}/cancelLogin`
   })
