@@ -4,7 +4,8 @@ const ProjectConfig = require("./project.config")
 var GenerateAssetPlugin = require('generate-asset-webpack-plugin');
 var createServerConfig = function(compilation){
   let cfgJson = {
-    baseURL:"https://gonelist.cugxuan.cn:8001",
+    // 默认指向 localhost
+    baseURL:"http://localhost:8000",
   };
   return JSON.stringify(cfgJson);
 }
