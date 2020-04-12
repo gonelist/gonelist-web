@@ -1,4 +1,4 @@
-# GOIndex-Web
+# GONEList-Web
 
 ## 项目配置
 

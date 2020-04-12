@@ -1,10 +1,10 @@
 <template>
   <div class="content" v-if="Ishow">
     <div class="title">
-       <h1>GOIndex</h1>
+       <h1>GONEList</h1>
        <!-- <div class="logout" @click="exit"><svg t="1585476980680" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1155" width="48" height="48"><path d="M783.92332 467.520619l-108.097715-108.137692 60.295258-60.295259L917.05661 480.023415l30.142632 30.152626-211.078379 211.078378-60.295258-60.345229 108.097715-108.097715H331.024277V467.530613h452.899043z m-197.046463 556.479361H160.712409a85.470752 85.470752 0 0 1-60.485149-25.02558 85.458759 85.458759 0 0 1-25.055563-60.475155V86.080401C75.171697 38.877599 113.429653 0.579666 160.712409 0.579666h426.164448v85.280862h-383.479043a42.600454 42.600454 0 0 0-42.945255 42.305624v768.247342c0 22.896807 19.188943 42.29563 42.945255 42.29563h383.479043v85.290856z m0 0" fill="#2c2c2c" p-id="1156"></path></svg></div>    -->
     </div>
-    
+
     <div class="list-wrapper">
       <div class="list-container">
 
@@ -12,15 +12,15 @@
             <div class="title-icon">
               <h3>
                 <span class="icon-home"></span>
-                
+
                 <span v-for="(item,index) in stack" :key="item.name" @click="toPath(index)">
                   <span>{{item.name}}</span>
                   <span style="padding-left:5px" v-if="item.name">/ </span>
                 </span>
               </h3>
-              <span id="back" class="icon-arrow-left2" @click="back"></span> 
+              <span id="back" class="icon-arrow-left2" @click="back"></span>
             </div>
-            
+
             <div class="search-container">
                 <input id="search" v-model="keywords" placeholder="Search" @keyup="search()">
             </div>
@@ -47,7 +47,7 @@
           </table>
         </div>
       </div>
-     
+
     </div>
   </div>
 </template>
@@ -56,7 +56,7 @@
 import { getAllFiles,logout } from "../API/api"
 export default {
   name: "Index",
-  data() {   
+  data() {
     return {
       Ishow: 0,
       files: [],
@@ -68,7 +68,7 @@ export default {
     }
   },
   created() {
-    getAllFiles(this.baseURL).then(res => { 
+    getAllFiles(this.baseURL).then(res => {
 
       if(res.data.code == 400) {
         window.location.href = `${this.baseURL}/login`;
@@ -100,7 +100,7 @@ export default {
         }
         // 构造路径栈
         this.stack.push(this.files);
-      } 
+      }
       // 排序一下
       this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
     })
@@ -158,8 +158,8 @@ export default {
         this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
         this.stack.push(this.files);
       }
-      
-     
+
+
     },
     back() {
       if(this.stack.length == 1) {
@@ -172,7 +172,7 @@ export default {
         // 排序一下
         this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
       }
-      
+
     },
     toPath(index) {
       //console.log(index);
@@ -183,7 +183,7 @@ export default {
       this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
     },
     search() {
-      this.reg = new RegExp(this.keywords);    
+      this.reg = new RegExp(this.keywords);
     },
     exit() {
       logout(this.baseURL).then(res => {
@@ -386,5 +386,5 @@ export default {
     .item:hover {
         background-color: gainsboro;
     }
-   
+
 </style>

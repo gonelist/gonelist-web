@@ -1,10 +1,10 @@
 
 const ProjectConfig = require("./project.config")
 //让打包的时候输出可配置的文件
-var GenerateAssetPlugin = require('generate-asset-webpack-plugin'); 
+var GenerateAssetPlugin = require('generate-asset-webpack-plugin');
 var createServerConfig = function(compilation){
   let cfgJson = {
-    baseURL:"https://goindex.cugxuan.cn:8001",
+    baseURL:"https://gonelist.cugxuan.cn:8001",
   };
   return JSON.stringify(cfgJson);
 }
