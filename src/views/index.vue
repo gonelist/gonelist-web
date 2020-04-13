@@ -79,7 +79,11 @@ export default {
       // 通过hash来查找对应的文件夹,需要decodeURI一下
       let path = decodeURIComponent(window.location.hash).slice(1).split("/");
       // 将最后的空元素删除
-      path.pop()
+      // 如果最后一个元素是 "" 就删除
+      console.log(path)
+      if(path[path.length-1] == '') {
+        path.pop()
+      }
       console.log(path)
       this.stack.push(this.files);
       for(let i = 1; i < path.length; i++) {
@@ -99,6 +103,15 @@ export default {
         }
         // 构造路径栈
         this.stack.push(this.files);
+        
+      }
+      // 如果匹配到文件夹就直接下载
+      if(!this.files.is_folder) {
+        var download = this.stack.pop()
+        // 显示栈顶元素
+        this.files = this.stack[this.stack.length-1]
+        console.log("下载",download.download_url)
+        window.open(download.download_url, "_blank")
       }
       // 排序一下
       this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
@@ -111,7 +124,7 @@ export default {
       for(let i = 0; i < this.stack.length; i++) {
         this.searchPath = this.searchPath + this.stack[i].name + '/';
       }
-      window.location.hash = this.searchPath;
+      window.location.hash = this.searchPath
     },
     // $route: {
     //   handler: function(val, oldVal){
