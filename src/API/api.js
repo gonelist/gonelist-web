@@ -1,11 +1,11 @@
 import request from "../utils/request"
 
-export function getAllFiles(baseURL) {
+export function getAllFiles(baseURL, path) {
   return request({
     method: "get",
     url: `${baseURL}/onedrive/getpath`,
     params: {
-      path: '/'
+      path: path || '/'
     }
   })
 }

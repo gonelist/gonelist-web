@@ -12,10 +12,9 @@
             <div class="title-icon">
               <h3>
                 <span class="icon-home"></span>
-
-                <span v-for="(item,index) in stack" :key="item.name" @click="toPath(index)">
-                  <span>{{item.name}}</span>
-                  <span style="padding-left:5px" v-if="item.name">/ </span>
+                <span v-for="(item,index) in path" :key="item" @click="toPath(index)">
+                  <span>{{item=='/' ? 'root':item}}</span>
+                  <span style="padding-left:5px" v-if="item || item!= '/'">/ </span>
                 </span>
               </h3>
               <span id="back" class="icon-arrow-left2" @click="back"></span>
@@ -60,80 +59,125 @@ export default {
     return {
       Ishow: 0,
       files: [],
-      // 记录路径栈，可以优化，即只记录每一层点击过的index，然后通过每层的index往下查找，可节省stack占用的空间
-      stack: [],
+      path: [],
       keywords: "",
       reg: /""/,
       searchPath: ""
     }
   },
   created() {
-    getAllFiles(this.baseURL).then(res => {
+    this.searchPath = decodeURIComponent(window.location.hash)
+    if(!this.searchPath) {
+      this.searchPath = '#/'
+    } else {
+      if(this.searchPath!= "#/" && this.searchPath[this.searchPath.length-1] == '/') {
+        this.searchPath = this.searchPath.slice(0,-1)
+      }
+    }
+    console.log(this.searchPath)
+    // 通过search来查找对应的文件夹,需要decodeURI一下
+    this.path = this.searchPath.slice(1).split("/");
+    // 将最后的空元素删除
+    // 如果最后一个元素是 "" 就删
+    if(this.path[this.path.length-1] == '') {
+      this.path.pop()
+    }
+    if(this.path[0] == "") {
+      this.path[0] = "/"
+    }
+    console.log(this.path)
+    let param = decodeURIComponent(window.location.hash)
+    if(param[param.length-1] == '/') {
+      param = param.slice(1,-1)
+    } else {
+      param = param.slice(1)
+    }
+    console.log(param)
+    getAllFiles(this.baseURL, param).then(res => {
 
       if(res.code == 400) {
         window.location.href = `${this.baseURL}/login`;
-      }
-      this.files = res.data;
-      this.files = this.files || []
-      this.Ishow = res ? 1 : 0;
-      // 通过hash来查找对应的文件夹,需要decodeURI一下
-      let path = decodeURIComponent(window.location.hash).slice(1).split("/");
-      // 将最后的空元素删除
-      // 如果最后一个元素是 "" 就删除
-      console.log(path)
-      if(path[path.length-1] == '') {
-        path.pop()
-      }
-      console.log(path)
-      this.stack.push(this.files);
-      for(let i = 1; i < path.length; i++) {
-        // 查找路径
-        let flag = 0;
-        this.files.children.forEach(item => {
-          if(item.name == path[i]){
-            this.files = item;
-            flag = 1; //表示找到
-          }
-        });
-        if(!flag) {
-          // 没有找到对应文件夹就返回主页
-          window.location.hash = "";
-          window.location.reload();
-          break;
-        }
-        // 构造路径栈
-        this.stack.push(this.files);
+      } else if(res.code == 10002) {
+        alert(res.msg)
+      } else {
+        this.files = res.data;
+        this.files = this.files || []
+        this.Ishow = res ? 1 : 0;
+      
         
+        // 如果匹配到文件夹就直接下载
+        if(!this.files.is_folder) {
+          this.files.children = []
+          this.files.children.push(this.files)
+          console.log("下载",this.files.download_url)
+          window.open(this.files.download_url, "_blank")
+        }
+        
+        // 排序一下
+        this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
       }
-      // 如果匹配到文件夹就直接下载
-      if(!this.files.is_folder) {
-        var download = this.stack.pop()
-        // 显示栈顶元素
-        this.files = this.stack[this.stack.length-1]
-        console.log("下载",download.download_url)
-        window.open(download.download_url, "_blank")
-      }
-      // 排序一下
-      this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
+      
     })
   },
   watch: {
-    // 监听stack的变化，在路径中添加hash
-    stack() {
-      this.searchPath = "";
-      for(let i = 0; i < this.stack.length; i++) {
-        this.searchPath = this.searchPath + this.stack[i].name + '/';
-      }
-      window.location.hash = this.searchPath
-    },
-    // $route: {
-    //   handler: function(val, oldVal){
-    //     window.location.reload()
-    //   },
-    //   // 深度观察监听
-    //   deep: true
-    // }
+    $route: {
+      handler: function(val, oldVal){
+        this.searchPath = decodeURIComponent(window.location.hash)
+        if(!this.searchPath) {
+          this.searchPath = '#/'
+        } else {
+          if(this.searchPath!= "#/" && this.searchPath[this.searchPath.length-1] == '/') {
+            this.searchPath = this.searchPath.slice(0,-1)
+          }
+        }
+        console.log(this.searchPath)
+        // 通过search来查找对应的文件夹,需要decodeURI一下
+        this.path = this.searchPath.slice(1).split("/");
+        // 将最后的空元素删除
+        // 如果最后一个元素是 "" 就删
+        if(this.path[this.path.length-1] == '') {
+          this.path.pop()
+        }
+        if(this.path[0] == "") {
+          this.path[0] = "/"
+        }
+        console.log(this.path)
+        let param = decodeURIComponent(window.location.hash)
+        if(param[param.length-1] == '/') {
+          param = param.slice(1,-1)
+        } else {
+          param = param.slice(1)
+        }
+        console.log(param)
+        getAllFiles(this.baseURL, param).then(res => {
 
+          if(res.code == 400) {
+            window.location.href = `${this.baseURL}/login`;
+          } else if(res.code == 10002) {
+            alert(res.msg)
+          } else {
+            this.files = res.data;
+            this.files = this.files || []
+            this.Ishow = res ? 1 : 0;
+          
+            
+            // 如果匹配到文件夹就直接下载
+            if(!this.files.is_folder) {
+              this.files.children = []
+              this.files.children.push(this.files)
+              console.log("下载",this.files.download_url)
+              window.open(this.files.download_url, "_blank")
+            }
+            
+            // 排序一下
+            this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
+          }
+          
+        })
+      },
+      // 深度观察监听
+      deep: true
+    }
   },
   filters: {
     formatTime(time) {
@@ -163,53 +207,59 @@ export default {
         window.open(this.files.children[index].download_url, "_blank")
 
       } else {
-        this.keywords = "";
-        // 点击文件夹进入下一个文件夹，并使其入栈
-        this.files = this.files.children[index];
-        // 排序一下
-        this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
-        this.stack.push(this.files);
+        if(this.path.length == 1) {
+          this.searchPath  =  this.searchPath + this.files.children[index].name         
+        } else {
+          this.searchPath  =  this.searchPath + '/'  + this.files.children[index].name
+        }
+        
+        window.location.hash = this.searchPath
       }
 
 
     },
     back() {
-      if(this.stack.length == 1) {
+      console.log(this.path.length)
+      if(this.path.length == 1) {
         console.log("已在根目录，无法返回")
       } else {
-        this.keywords = "";
-        this.stack.pop()
-        // 显示栈顶元素
-        this.files = this.stack[this.stack.length-1]
-        // 排序一下
-        this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
+        this.path.pop()
+        this.searchPath = "";
+        for(let i = 0; i < this.path.length; i++) {
+          if(i == 0 || i==1) {
+            this.searchPath = this.searchPath + this.path[i];
+          } else {
+            this.searchPath = this.searchPath + '/' + this.path[i];
+          }       
+        }
+        window.location.hash = this.searchPath
       }
-
     },
     toPath(index) {
-      //console.log(index);
-      this.keywords = "";
-      this.stack = this.stack.slice(0, index+1)
-      this.files = this.stack[this.stack.length-1]
-      // 排序一下
-      this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
+      if(index+1 != this.path.length) {
+        this.searchPath = ""
+        this.path = this.path.slice(0, index+1)
+        for(let i = 0; i < this.path.length; i++) {
+          if(i == 0 || i==1) {
+            this.searchPath = this.searchPath + this.path[i];
+          } else {
+            this.searchPath = this.searchPath + '/' + this.path[i];
+          }       
+        }
+        window.location.hash = this.searchPath
+      } else {
+        console.log("已在该目录")
+      }    
     },
     search() {
       this.reg = new RegExp(this.keywords);
     },
     exit() {
       logout(this.baseURL).then(res => {
-        this.clear();
-        console.log(res)
+        window.location.hash = ""
       })
     },
-    clear() {
-      this.files = [];
-      this.stack = [];
-      this.keywords = "";
-      this.reg = /""/;
-      this.searchPath= "";
-    },
+      
     sortByFileType(pre, next) {
       let num1,num2;
       num1 = pre.is_folder ? 1 : 0;
