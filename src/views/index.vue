@@ -66,114 +66,12 @@ export default {
     }
   },
   created() {
-    this.searchPath = decodeURIComponent(window.location.hash)
-    if(!this.searchPath) {
-      this.searchPath = '#/'
-    } else {
-      if(this.searchPath!= "#/" && this.searchPath[this.searchPath.length-1] == '/') {
-        this.searchPath = this.searchPath.slice(0,-1)
-      }
-    }
-    console.log(this.searchPath)
-    // 通过search来查找对应的文件夹,需要decodeURI一下
-    this.path = this.searchPath.slice(1).split("/");
-    // 将最后的空元素删除
-    // 如果最后一个元素是 "" 就删
-    if(this.path[this.path.length-1] == '') {
-      this.path.pop()
-    }
-    if(this.path[0] == "") {
-      this.path[0] = "/"
-    }
-    console.log(this.path)
-    let param = decodeURIComponent(window.location.hash)
-    if(param[param.length-1] == '/') {
-      param = param.slice(1,-1)
-    } else {
-      param = param.slice(1)
-    }
-    console.log(param)
-    getAllFiles(this.baseURL, param).then(res => {
-
-      if(res.code == 400) {
-        window.location.href = `${this.baseURL}/login`;
-      } else if(res.code == 10002) {
-        alert(res.msg)
-      } else {
-        this.files = res.data;
-        this.files = this.files || []
-        this.Ishow = res ? 1 : 0;
-      
-        
-        // 如果匹配到文件夹就直接下载
-        if(!this.files.is_folder) {
-          this.files.children = []
-          this.files.children.push(this.files)
-          console.log("下载",this.files.download_url)
-          window.open(this.files.download_url, "_blank")
-        }
-        
-        // 排序一下
-        this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
-      }
-      
-    })
+    this.init()
   },
   watch: {
     $route: {
       handler: function(val, oldVal){
-        this.searchPath = decodeURIComponent(window.location.hash)
-        if(!this.searchPath) {
-          this.searchPath = '#/'
-        } else {
-          if(this.searchPath!= "#/" && this.searchPath[this.searchPath.length-1] == '/') {
-            this.searchPath = this.searchPath.slice(0,-1)
-          }
-        }
-        console.log(this.searchPath)
-        // 通过search来查找对应的文件夹,需要decodeURI一下
-        this.path = this.searchPath.slice(1).split("/");
-        // 将最后的空元素删除
-        // 如果最后一个元素是 "" 就删
-        if(this.path[this.path.length-1] == '') {
-          this.path.pop()
-        }
-        if(this.path[0] == "") {
-          this.path[0] = "/"
-        }
-        console.log(this.path)
-        let param = decodeURIComponent(window.location.hash)
-        if(param[param.length-1] == '/') {
-          param = param.slice(1,-1)
-        } else {
-          param = param.slice(1)
-        }
-        console.log(param)
-        getAllFiles(this.baseURL, param).then(res => {
-
-          if(res.code == 400) {
-            window.location.href = `${this.baseURL}/login`;
-          } else if(res.code == 10002) {
-            alert(res.msg)
-          } else {
-            this.files = res.data;
-            this.files = this.files || []
-            this.Ishow = res ? 1 : 0;
-          
-            
-            // 如果匹配到文件夹就直接下载
-            if(!this.files.is_folder) {
-              this.files.children = []
-              this.files.children.push(this.files)
-              console.log("下载",this.files.download_url)
-              window.open(this.files.download_url, "_blank")
-            }
-            
-            // 排序一下
-            this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
-          }
-          
-        })
+        this.init()
       },
       // 深度观察监听
       deep: true
@@ -200,6 +98,60 @@ export default {
   }
   },
   methods: {
+    init() {
+      this.searchPath = decodeURIComponent(window.location.hash)
+      if(!this.searchPath) {
+        this.searchPath = '#/'
+      } else {
+        if(this.searchPath!= "#/" && this.searchPath[this.searchPath.length-1] == '/') {
+          this.searchPath = this.searchPath.slice(0,-1)
+        }
+      }
+      console.log(this.searchPath)
+      // 通过search来查找对应的文件夹,需要decodeURI一下
+      this.path = this.searchPath.slice(1).split("/");
+      // 将最后的空元素删除
+      // 如果最后一个元素是 "" 就删
+      if(this.path[this.path.length-1] == '') {
+        this.path.pop()
+      }
+      if(this.path[0] == "") {
+        this.path[0] = "/"
+      }
+      console.log(this.path)
+      let param = decodeURIComponent(window.location.hash)
+      if(param[param.length-1] == '/') {
+        param = param.slice(1,-1)
+      } else {
+        param = param.slice(1)
+      }
+      console.log(param)
+      getAllFiles(this.baseURL, param).then(res => {
+
+        if(res.code == 400) {
+          window.location.href = `${this.baseURL}/login`;
+        } else if(res.code == 10002) {
+          alert(res.msg)
+        } else {
+          this.files = res.data;
+          this.files = this.files || []
+          this.Ishow = res ? 1 : 0;
+        
+          
+          // 如果匹配到文件夹就直接下载
+          if(!this.files.is_folder) {
+            this.files.children = []
+            this.files.children.push(this.files)
+            console.log("下载",this.files.download_url)
+            window.open(this.files.download_url, "_blank")
+          }
+          
+          // 排序一下
+          this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
+        }
+        
+      })
+    },
     nextFile(index) {
       if(this.files.children[index].download_url) {
         // 有下载链接直接下载
@@ -215,8 +167,6 @@ export default {
         
         window.location.hash = this.searchPath
       }
-
-
     },
     back() {
       console.log(this.path.length)
