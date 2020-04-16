@@ -39,7 +39,7 @@
                     <span class="icon-folder-open"></span>
                     <span>{{file.name}}</span>
                   </a>
-                  <a :href="file.download_url" :title="file.download_url" target="_blank" v-else>
+                  <a :href="baseurl + 'd' + file.path" :title="file.download_url" target="_blank" v-else>
                     <span class="icon-file-text2"></span>
                     <span>{{file.name}}</span>
                   </a>
@@ -68,7 +68,10 @@ export default {
       keywords: "",
       reg: /""/,
       hash: "",
-      href: ""
+      // origin + parh + hash
+      href: "",
+      // origin + path
+      baseurl: ""
     }
   },
   created() {
@@ -115,7 +118,8 @@ export default {
           this.hash = this.hash.slice(0,-1)
         }
       }
-      this.href = decodeURIComponent(window.location.origin) + decodeURIComponent(window.location.pathname) + this.hash
+      this.baseurl = decodeURIComponent(window.location.origin) + decodeURIComponent(window.location.pathname) 
+      this.href = this.baseurl + this.hash
       console.log("格式化后的hash：",this.hash)
       // 通过search来查找对应的文件夹,需要decodeURI一下
       this.path = this.hash.slice(1).split("/");
