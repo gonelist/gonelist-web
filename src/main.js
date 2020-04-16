@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === 'production') {
   startApp()
 } else {
   // 为开发环境配置...
-  Vue.prototype.baseURL = "http://localhost:8000";
+  Vue.prototype.baseURL = "http://gonelist.cugxuan.cn:8000";
   new Vue({
     router,
     store,

@@ -138,7 +138,6 @@ export default {
       }
       console.log("请求的参数：",param)
       getAllFiles(this.baseURL, param).then(res => {
-
         if(res.code == 400) {
           window.location.href = `${this.baseURL}/login`;
         } else if(res.code == 10002) {
@@ -154,7 +153,8 @@ export default {
               this.files.children = []
               this.files.children.push(this.files)
               console.log("下载",this.files.download_url)
-              window.open(this.files.download_url, "_blank")
+              //window.open(this.files.download_url, "_blank")
+              window.location.href = this.files.download_url
             }
             
             // 排序一下
