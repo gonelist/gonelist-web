@@ -33,14 +33,19 @@
                 <th>时间</th>
                 <th>大小</th>
               </tr>
-              <tr class="item" v-for="(file,index) in (files.children || [])" v-bind:key="file.name" @click="nextFile(index)">
+              <tr class="item" v-for="(file,index) in (files.children || [])" v-bind:key="file.name">
                 <td class="list-data" v-if=" !keywords || reg.test(file.name)">
-                  <span class="icon-folder-open" v-if="file.is_folder"></span>
-                  <span class="icon-file-text2" v-else></span>
-                  <span>{{file.name}}</span>
+                  <a :href="path.length == 1 ? (href  + file.name) : (href +'/'  +file.name)" :title="path.length == 1 ? (href  +file.name) : (href+ '/'  +file.name)" v-if="file.is_folder" @click.prevent="nextFile(index)">
+                    <span class="icon-folder-open"></span>
+                    <span>{{file.name}}</span>
+                  </a>
+                  <a :href="file.download_url" :title="file.download_url" target="_blank" v-else>
+                    <span class="icon-file-text2"></span>
+                    <span>{{file.name}}</span>
+                  </a>
                 </td>
                 <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.last_modify_time | formatTime}}</td>
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.size | formatSize}}</td>
+                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.size | formatSize}}</td>                           
               </tr>
             </tbody>
           </table>
@@ -62,7 +67,8 @@ export default {
       path: [],
       keywords: "",
       reg: /""/,
-      searchPath: ""
+      hash: "",
+      href: ""
     }
   },
   created() {
@@ -99,33 +105,38 @@ export default {
   },
   methods: {
     init() {
-      this.searchPath = decodeURIComponent(window.location.hash)
-      if(!this.searchPath) {
-        this.searchPath = '#/'
+      this.hash = decodeURIComponent(window.location.hash)
+      // hash为空或者hash为#/都认为hash为#/    
+      if(!this.hash) {
+        this.hash = '#/'
       } else {
-        if(this.searchPath!= "#/" && this.searchPath[this.searchPath.length-1] == '/') {
-          this.searchPath = this.searchPath.slice(0,-1)
+        if(this.hash!= "#/" && this.hash[this.hash.length-1] == '/') {
+          // hash以/结尾，去掉结尾的/
+          this.hash = this.hash.slice(0,-1)
         }
       }
-      console.log(this.searchPath)
+      this.href = decodeURIComponent(window.location.origin) + decodeURIComponent(window.location.pathname) + this.hash
+      console.log("格式化后的hash：",this.hash)
       // 通过search来查找对应的文件夹,需要decodeURI一下
-      this.path = this.searchPath.slice(1).split("/");
+      this.path = this.hash.slice(1).split("/");
       // 将最后的空元素删除
       // 如果最后一个元素是 "" 就删
       if(this.path[this.path.length-1] == '') {
+        console.log("pop掉最后一个")
         this.path.pop()
       }
+      // 将hash置为/
       if(this.path[0] == "") {
         this.path[0] = "/"
       }
-      console.log(this.path)
+      console.log("path数组：",this.path)
       let param = decodeURIComponent(window.location.hash)
       if(param[param.length-1] == '/') {
         param = param.slice(1,-1)
       } else {
         param = param.slice(1)
       }
-      console.log(param)
+      console.log("请求的参数：",param)
       getAllFiles(this.baseURL, param).then(res => {
 
         if(res.code == 400) {
@@ -134,69 +145,79 @@ export default {
           alert(res.msg)
         } else {
           this.files = res.data;
-          this.files = this.files || []
-          this.Ishow = res ? 1 : 0;
-        
-          
-          // 如果匹配到文件夹就直接下载
-          if(!this.files.is_folder) {
-            this.files.children = []
-            this.files.children.push(this.files)
-            console.log("下载",this.files.download_url)
-            window.open(this.files.download_url, "_blank")
+          this.Ishow = res ? 1 : 0;       
+          if(!this.files) {
+            this.files = []
+          } else {
+             // 如果匹配到文件夹就直接下载
+            if(!this.files.is_folder) {
+              this.files.children = []
+              this.files.children.push(this.files)
+              console.log("下载",this.files.download_url)
+              window.open(this.files.download_url, "_blank")
+            }
+            
+            // 排序一下
+            this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
           }
-          
-          // 排序一下
-          this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
+        
+         
         }
         
       })
     },
     nextFile(index) {
-      if(this.files.children[index].download_url) {
-        // 有下载链接直接下载
-        console.log("下载",this.files.children[index].download_url)
-        window.open(this.files.children[index].download_url, "_blank")
+      // if(this.files.children[index].download_url) {
+      //   // // 有下载链接直接下载
+      //   console.log("下载",this.files.children[index].download_url)
+      //   window.open(this.files.children[index].download_url, "_blank")
 
-      } else {
-        if(this.path.length == 1) {
-          this.searchPath  =  this.searchPath + this.files.children[index].name         
-        } else {
-          this.searchPath  =  this.searchPath + '/'  + this.files.children[index].name
-        }
+      // } else {
+      //   if(this.path.length == 1) {
+      //     this.hash  =  this.hash + this.files.children[index].name         
+      //   } else {
+      //     this.hash  =  this.hash + '/'  + this.files.children[index].name
+      //   }
         
-        window.location.hash = this.searchPath
+      //   window.location.hash = this.hash
+      // }
+      if(this.path.length == 1) {
+        this.hash  =  this.hash + this.files.children[index].name         
+      } else {
+        this.hash  =  this.hash + '/'  + this.files.children[index].name
       }
+      
+      window.location.hash = this.hash
     },
     back() {
-      console.log(this.path.length)
+      //console.log(this.path.length)
       if(this.path.length == 1) {
         console.log("已在根目录，无法返回")
       } else {
         this.path.pop()
-        this.searchPath = "";
+        this.hash = "";
         for(let i = 0; i < this.path.length; i++) {
           if(i == 0 || i==1) {
-            this.searchPath = this.searchPath + this.path[i];
+            this.hash = this.hash + this.path[i];
           } else {
-            this.searchPath = this.searchPath + '/' + this.path[i];
+            this.hash = this.hash + '/' + this.path[i];
           }       
         }
-        window.location.hash = this.searchPath
+        window.location.hash = this.hash
       }
     },
     toPath(index) {
       if(index+1 != this.path.length) {
-        this.searchPath = ""
+        this.hash = ""
         this.path = this.path.slice(0, index+1)
         for(let i = 0; i < this.path.length; i++) {
           if(i == 0 || i==1) {
-            this.searchPath = this.searchPath + this.path[i];
+            this.hash = this.hash + this.path[i];
           } else {
-            this.searchPath = this.searchPath + '/' + this.path[i];
+            this.hash = this.hash + '/' + this.path[i];
           }       
         }
-        window.location.hash = this.searchPath
+        window.location.hash = this.hash
       } else {
         console.log("已在该目录")
       }    
@@ -330,8 +351,12 @@ export default {
         table-layout: fixed;
         word-break: break-all;
     }
-    .item {
+    /* .item {
       cursor: pointer;
+    } */
+    td a {
+      display: inline-block;
+      width: 100%;
     }
     th {
         font-weight: bold;
