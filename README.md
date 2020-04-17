@@ -4,6 +4,13 @@
 
 在project.config.js里面配置
 
+## 视频播放和音频播放
+
+视频播放库 [DPlayer](http://dplayer.js.org/)
+
+
+音频播放库 [APlayer](https://aplayer.js.org/)
+
 ## publicPath不建议修改
 
 要实现根据hash去寻找对应文件夹下的文件，本项目把路由设置为history模式，[使用history模式要尽量避免使用publicPath](https://cli.vuejs.org/zh/config/#publicpath)，打包后的文件放置在根目录

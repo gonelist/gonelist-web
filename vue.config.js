@@ -12,6 +12,7 @@ var createServerConfig = function(compilation){
 
 module.exports = {
   publicPath: ProjectConfig.publicPath,
+  productionSourceMap: false,
   configureWebpack: {
     plugins: [
       new GenerateAssetPlugin({
