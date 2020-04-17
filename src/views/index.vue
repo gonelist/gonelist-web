@@ -2,7 +2,6 @@
   <div class="content" v-if="Ishow">
     <div class="title">
        <h1>GONEList</h1>
-       <!-- <div class="logout" @click="exit"><svg t="1585476980680" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1155" width="48" height="48"><path d="M783.92332 467.520619l-108.097715-108.137692 60.295258-60.295259L917.05661 480.023415l30.142632 30.152626-211.078379 211.078378-60.295258-60.345229 108.097715-108.097715H331.024277V467.530613h452.899043z m-197.046463 556.479361H160.712409a85.470752 85.470752 0 0 1-60.485149-25.02558 85.458759 85.458759 0 0 1-25.055563-60.475155V86.080401C75.171697 38.877599 113.429653 0.579666 160.712409 0.579666h426.164448v85.280862h-383.479043a42.600454 42.600454 0 0 0-42.945255 42.305624v768.247342c0 22.896807 19.188943 42.29563 42.945255 42.29563h383.479043v85.290856z m0 0" fill="#2c2c2c" p-id="1156"></path></svg></div>    -->
     </div>
 
     <div class="list-wrapper">
@@ -32,20 +31,42 @@
                 <th>文件</th>
                 <th>时间</th>
                 <th>大小</th>
+                <th></th>
               </tr>
               <tr class="item" v-for="(file,index) in (files.children || [])" v-bind:key="file.name">
                 <td class="list-data" v-if=" !keywords || reg.test(file.name)">
-                  <a :href="path.length == 1 ? (href  + file.name) : (href +'/'  +file.name)" :title="path.length == 1 ? (href  +file.name) : (href+ '/'  +file.name)" v-if="file.is_folder" @click.prevent="nextFile(index)">
-                    <span class="icon-folder-open"></span>
+                  <a :href="path.length == 1 ? (href  + file.name) : (href +'/'  +file.name)" :title="path.length == 1 ? (href +file.name) : (href+ '/'  +file.name)" v-if="file.is_folder" @click.prevent="nextFile(index)">
+                    <span><i class="fa fa-folder-open" aria-hidden="true"></i> </span>
                     <span>{{file.name}}</span>
                   </a>
-                  <a :href="baseurl + 'd' + file.path" :title="file.download_url" target="_blank" v-else>
-                    <span class="icon-file-text2"></span>
+                  <a :href="baseurl + 'd' + file.path" :title="baseurl + 'd' + file.path" target="_blank" v-else>                
+                    <span> 
+                      <i class="fa fa-file-video-o" aria-hidden="true" v-if="checkFile(file.name) == 'video'"></i> 
+                      <i class="fa fa-file-audio-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'audio'"></i>
+                      <i class="fa fa-file-archive-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'zip'"></i> 
+                      <i class="fa fa-file-image-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'image'"></i> 
+                      <i class="fa fa-file-pdf-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'pdf'"></i> 
+                      <i class="fa fa-file-excel-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'excel'"></i> 
+                      <i class="fa fa-file-powerpoint-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'ppt'"></i> 
+                      <i class="fa fa-file-word-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'word'"></i> 
+                      <i class="fa fa-file-code-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'code'"></i> 
+                      <i class="fa fa-file-text-o" aria-hidden="true" v-else></i> 
+                    </span>
                     <span>{{file.name}}</span>
                   </a>
                 </td>
                 <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.last_modify_time | formatTime}}</td>
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.size | formatSize}}</td>                           
+                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.size | formatSize}}</td>      
+                <td >
+                  <span v-if="checkFile(file.name) == 'video'" @click="playVideo(baseurl + 'd' + file.path,index)">
+                    <i class="fa fa-play" title="播放" aria-hidden="true" v-if="!video.show || video.index != index"></i>
+                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="video.index == index && video.show"></i> 
+                  </span> 
+                  <span v-else-if="checkFile(file.name) == 'audio'" @click="playAudio(baseurl + 'd' + file.path,index)">      
+                    <i class="fa fa-play" title="播放" aria-hidden="true" v-if="!audio.show || audio.index != index"></i>
+                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="audio.index == index && audio.show"></i> 
+                  </span>                 
+                </td>                     
               </tr>
             </tbody>
           </table>
@@ -53,13 +74,24 @@
       </div>
 
     </div>
+    <!-- <My-DPlayer :video="video" ref="mydplayer" v-on:close="closePlayer" v-show="video.show"></My-DPlayer>  -->
+    <D-Player v-on:closeVideo="closeV" ref="mydplayer" v-show="video.show"></D-Player>
+    <A-Player v-on:closeAudio="closeA" ref="myaplayer" v-show="audio.show"></A-Player>
   </div>
 </template>
 
 <script>
 import { getAllFiles,logout } from "../API/api"
+import { checkFileType } from '../utils/index'
+import DPlayer from '../components/Dplayer';
+import APlayer from '../components/Aplayer'
+
 export default {
   name: "Index",
+  components: {
+    "D-Player": DPlayer,
+    "A-Player": APlayer
+  },
   data() {
     return {
       Ishow: 0,
@@ -71,10 +103,19 @@ export default {
       // origin + parh + hash
       href: "",
       // origin + path
-      baseurl: ""
+      baseurl: "",
+      video: {
+        show: false,
+        index: 0 // 点击的元素
+      },
+      audio: {
+        show: false,
+        index: 0
+      }
     }
   },
   created() {
+    console.log(checkFileType)
     this.init()
   },
   watch: {
@@ -118,7 +159,13 @@ export default {
           this.hash = this.hash.slice(0,-1)
         }
       }
-      this.baseurl = decodeURIComponent(window.location.origin) + decodeURIComponent(window.location.pathname) 
+      console.log(process.env.NODE_ENV )
+      if (process.env.NODE_ENV === 'production') {
+        this.baseurl = decodeURIComponent(window.location.origin) + decodeURIComponent(window.location.pathname) 
+      } else {
+        this.baseurl = decodeURIComponent(this.baseURL) + decodeURIComponent(window.location.pathname) 
+      }
+      
       this.href = this.baseurl + this.hash
       console.log("格式化后的hash：",this.hash)
       // 通过search来查找对应的文件夹,需要decodeURI一下
@@ -240,6 +287,69 @@ export default {
       num1 = pre.is_folder ? 1 : 0;
       num2 = next.is_folder? 1 : 0;
       return num2-num1;
+    },
+    playVideo(playurl,index) {  
+      this.video.index = index
+      if(!this.video.show) {
+        this.video.show = true
+        // if(index == 0) {
+        //   playurl = "http://static.smartisanos.cn/common/video/t1-ui.mp4"
+        // } else {
+        //   playurl = "http://static.smartisanos.cn/common/video/video-jgpro.mp4"
+        // }
+        this.$refs.mydplayer.play(playurl)
+      } else {
+         this.$refs.mydplayer.close()
+      }
+      
+      
+    },
+    playAudio(playurl,index) {
+      let audio
+      this.audio.index = index   
+      if(!this.audio.show) {
+        this.audio.show = true
+        // if(index == 0) {
+        //   //playurl = "https://cn-south-17-aplayer-46154810.oss.dogecdn.com/hikarunara.mp3"
+        //   audio = {
+        //       name: '光るなら',
+        //       artist: 'Goose house',
+        //       url: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/hikarunara.mp3',
+        //       cover: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/hikarunara.jpg',
+        //       // 歌词
+        //       //lrc: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/hikarunara.lrc',
+        //       theme: '#ebd0c2'
+        //   }
+        // } else {
+        //   //playurl = "https://cn-south-17-aplayer-46154810.oss.dogecdn.com/darling.mp3"
+        //   audio = {
+        //       name: 'トリカゴ',
+        //       artist: 'XX:me',
+        //       url: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/darling.mp3',
+        //       cover: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/darling.jpg',
+        //       // 歌词
+        //       //lrc: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/darling.lrc',
+        //       theme: '#46718b'
+        //   }
+        // }
+        audio = {
+          name: "未知",
+          artist:"未知",
+          url: playurl
+        }
+        this.$refs.myaplayer.play(audio)
+      } else {
+        this.$refs.myaplayer.close()
+      }      
+    },
+    closeV() {
+      this.video.show = false
+    },
+    closeA() {
+      this.audio.show = false
+    },
+    checkFile(name) {
+      return checkFileType(name)
     }
   }
 
@@ -247,37 +357,6 @@ export default {
 </script>
 
 <style>
-    @font-face{
-        font-family: 'icomoon';
-        src : url("data:application/x-font-woff;charset=utf-8;base64,AAEAAAALAIAAAwAwT1MvMg8SBwQAAAC8AAAAYGNtYXDTrtL+AAABHAAAAGxnYXNwAAAAEAAAAYgAAAAIZ2x5Zizg66wAAAGQAAACOGhlYWQXasWNAAADyAAAADZoaGVhB8IDyQAABAAAAAAkaG10eBYAAJMAAAQkAAAAIGxvY2ECEgFAAAAERAAAABJtYXhwAA8AZgAABFgAAAAgbmFtZZlKCfsAAAR4AAABhnBvc3QAAwAAAAAGAAAAACAAAwOaAZAABQAAApkCzAAAAI8CmQLMAAAB6wAzAQkAAAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAAAAAAAABAAADqQAPA/8AAQAPAAEAAAAABAAAAAAAAAAAAAAAgAAAAAAADAAAAAwAAABwAAQADAAAAHAADAAEAAAAcAAQAUAAAABAAEAADAAAAAQAg6QDpJukw6kD//f//AAAAAAAg6QDpJukw6kD//f//AAH/4xcEFt8W1hXHAAMAAQAAAAAAAAAAAAAAAAAAAAAAAQAB//8ADwABAAAAAAAAAAAAAgAANzkBAAAAAAEAAAAAAAAAAAACAAA3OQEAAAAAAQAAAAAAAAAAAAIAADc5AQAAAAACAAAAAAQAA6EABQAOAAAJAjUJAQcRIREhESERAQQA/gD+AAIAAgCA/wD/AP8AAYABcgGN/nOiAY3+c5T+gAEA/wABgAEgAAAGAED/wAPAA8AAGQAhADkARwBVAGMAAAEuAScuAScuASMhIgYVERQWMyEyNjURNCYnJx4BFyM1HgETFAYjISImNRE0NjMwMzoBMzIxFRQWOwEDISImNTQ2MyEyFhUUBichIiY1NDYzITIWFRQGJyEiJjU0NjMhMhYVFAYDlhEtGRozFycpC/4QIS8vIQLgIS8OHIUXJQ2aESmGCQf9IAcJCQdNTrpNThMN4KD+QA0TEw0BwA0TEw3+QA0TEw0BwA0TEw3+QA0TEw0BwA0TEwLbFzMaGS0RHA4vIfygIS8vIQJwCyknNhcpEZoNJfzoBwkJBwNgBwngDRP+ABMNDRMTDQ0TgBMNDRMTDQ0TgBMNDRMTDQ0TAAAAAgAAAAAEAANAAAMACgAAJRMhAxMDESEXIRUDQMD8wMCAgAEggAGgAAIA/gACQP3AA0CAgAAAAAABAFMAUwPAAy0AHQAAJQEmNDcBNjIXFhQPASEyFhUUBiMhFx4BFRQGBwYiAZP+wBMTAUASNhITE9ICZRslJRv9m9IKCQkKEjZTAUASNhIBQBMTEjYS0yUbGyXTCRgMDBgJEwAAAQAAAAAAAH282c1fDzz1AAsEAAAAAADaJkCIAAAAANomQIgAAP/ABAADwAAAAAgAAgAAAAAAAAABAAADwP/AAAAEAAAAAAAEAAABAAAAAAAAAAAAAAAAAAAACAQAAAAAAAAAAAAAAAIAAAAEAAAABAAAQAQAAAAEAABTAAAAAAAKABQAHgBCAM4A6gEcAAAAAQAAAAgAZAAGAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA4ArgABAAAAAAABAAcAAAABAAAAAAACAAcAYAABAAAAAAADAAcANgABAAAAAAAEAAcAdQABAAAAAAAFAAsAFQABAAAAAAAGAAcASwABAAAAAAAKABoAigADAAEECQABAA4ABwADAAEECQACAA4AZwADAAEECQADAA4APQADAAEECQAEAA4AfAADAAEECQAFABYAIAADAAEECQAGAA4AUgADAAEECQAKADQApGljb21vb24AaQBjAG8AbQBvAG8AblZlcnNpb24gMS4wAFYAZQByAHMAaQBvAG4AIAAxAC4AMGljb21vb24AaQBjAG8AbQBvAG8Abmljb21vb24AaQBjAG8AbQBvAG8AblJlZ3VsYXIAUgBlAGcAdQBsAGEAcmljb21vb24AaQBjAG8AbQBvAG8AbkZvbnQgZ2VuZXJhdGVkIGJ5IEljb01vb24uAEYAbwBuAHQAIABnAGUAbgBlAHIAYQB0AGUAZAAgAGIAeQAgAEkAYwBvAE0AbwBvAG4ALgAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=") format('woff');
-        font-weight: normal;
-        font-style: normal;
-        font-display: block;
-    }
-    [class^="icon-"], [class*=" icon-"] {
-        font-family: 'icomoon' !important;
-        speak: none;
-        font-style: normal;
-        font-weight: normal;
-        font-variant: normal;
-        text-transform: none;
-        line-height: 1;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-    .icon-home:before {
-        content: "\e900";
-        padding-right: 10px;
-    }
-    .icon-folder-open:before {
-        content: "\e930";
-    }
-    .icon-file-text2:before {
-        content: "\e926";
-    }
-    .icon-arrow-left2:before {
-        content: "\ea40";
-    }
     body {
         background-color: rgb(247, 247, 249);
     }
@@ -364,20 +443,31 @@ export default {
     }
     th {
         font-weight: bold;
+    }
+    th,td {
         text-align: right;
     }
+    th:first-child,td:first-child {
+      text-align: left;
+    }
     th:first-child {
-        text-align: left;
         padding: 5px;
         padding-left: 25px;
         width: 68%;
     }
     th:nth-child(2),th:nth-child(3),td:nth-child(2),td:nth-child(3){
-        text-align: right;
         width: 30%;
     }
     th:nth-child(3),td:nth-child(3){
-        width: 20%;
+        width: 10%;
+    }
+    th:nth-child(4),td:nth-child(4){
+        width: 10%;
+        text-align: center;
+    }
+    td:nth-child(4) i {
+      padding: 10px;
+      cursor: pointer;
     }
     td {
         font-weight: normal;

@@ -5,11 +5,8 @@
   </div>
 </template>
 
-<style lang="less">
-
-
-</style>
 <script>
+
 // import Index from "@/views/index"
 // export default {
 //   components: {
@@ -18,3 +15,7 @@
   
 // }
 </script>
+
+<style>
+
+</style>

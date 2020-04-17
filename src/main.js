@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from 'axios'
-
+import "font-awesome/css/font-awesome.min.css"
 Vue.config.productionTip = false
 
 if (process.env.NODE_ENV === 'production') {
@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === 'production') {
   startApp()
 } else {
   // 为开发环境配置...
-  Vue.prototype.baseURL = "http://gonelist.cugxuan.cn:8000";
+  Vue.prototype.baseURL = "https://cloud.cuger.cn";
   new Vue({
     router,
     store,

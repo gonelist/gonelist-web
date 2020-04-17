@@ -7,8 +7,11 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "aplayer": "^1.10.1",
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
+    "dplayer": "^1.25.0",
+    "font-awesome": "^4.7.0",
     "vue": "^2.6.11",
     "vue-router": "^3.1.5",
     "vuex": "^3.1.2"
