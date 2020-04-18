@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === 'production') {
   startApp()
 } else {
   // 为开发环境配置...
-  Vue.prototype.baseURL = "https://cloud.cuger.cn";
+  Vue.prototype.baseURL = "http://localhost:8000";
   new Vue({
     router,
     store,

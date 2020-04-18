@@ -6,7 +6,7 @@ export function checkFileType(name) {
   } else if (/\.(wav|mp3|ogg|acc|webm)$/.test(name)) {
     type = 'audio'
   } else if(/\.(rar|zip)$/.test(name)) {
-    type = 'zip'
+    type = 'archive'
   } else if(/\.(png|jpg|jpeg|gif|bmp)$/.test(name)) {
     type = 'image'
   } else if (/\.pdf$/.test(name)) {
@@ -14,7 +14,7 @@ export function checkFileType(name) {
   } else if(/\.(excel|xls|csv)$/.test(name)) {
     type = 'excel'
   } else if(/\.(ppt|pptx)$/.test(name)) {
-    type = 'ppt'
+    type = 'powerpoint'
   } else if(/\.(doc|docx)$/.test(name)) {
     type = 'word'
   } else if(/\.(c|cpp|java|js|py|css|html|php|ipynb|ts)$/.test(name)) {

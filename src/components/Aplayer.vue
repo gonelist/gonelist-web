@@ -16,7 +16,7 @@
           fixed: false,
           autoplay: false,
           theme: '#FADFA3',
-          loop: 'all',
+          loop: 'none',
           preload: 'auto',
           volume: 0.7
         }
@@ -38,6 +38,12 @@
           alert('音乐播放出错，请重试');
         });
         this.ap.play()
+      },
+      switch(audio) {
+        this.ap.list.add(audio)
+        this.ap.seek(0)
+        this.ap.skipForward()
+        this.ap.list.remove(0)
       },
       close() {
         this.ap.pause()

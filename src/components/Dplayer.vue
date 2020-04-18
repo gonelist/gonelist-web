@@ -47,6 +47,12 @@
         });
         this.dp.play()
       },
+      switch(url) {
+        this.dp.switchVideo({
+          url: url
+        })
+        this.dp.play()
+      },
       close() {
         this.dp.pause()
         this.$emit("closeVideo")

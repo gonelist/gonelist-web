@@ -41,32 +41,36 @@
                   </a>
                   <a :href="baseurl + 'd' + file.path" :title="baseurl + 'd' + file.path" target="_blank" v-else>                
                     <span> 
-                      <i class="fa fa-file-video-o" aria-hidden="true" v-if="checkFile(file.name) == 'video'"></i> 
-                      <i class="fa fa-file-audio-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'audio'"></i>
-                      <i class="fa fa-file-archive-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'zip'"></i> 
-                      <i class="fa fa-file-image-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'image'"></i> 
-                      <i class="fa fa-file-pdf-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'pdf'"></i> 
-                      <i class="fa fa-file-excel-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'excel'"></i> 
-                      <i class="fa fa-file-powerpoint-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'ppt'"></i> 
-                      <i class="fa fa-file-word-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'word'"></i> 
-                      <i class="fa fa-file-code-o" aria-hidden="true" v-else-if="checkFile(file.name) == 'code'"></i> 
-                      <i class="fa fa-file-text-o" aria-hidden="true" v-else></i> 
+                      <i class="fa" v-bind:class="['fa-file-' + checkFile(file.name) + '-o']" aria-hidden="true"></i> 
                     </span>
                     <span>{{file.name}}</span>
                   </a>
                 </td>
                 <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.last_modify_time | formatTime}}</td>
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.size | formatSize}}</td>      
-                <td >
+                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.size | formatSize}}</td>    
+                <!-- 生产环境   -->
+                <td v-if="isProduction">
                   <span v-if="checkFile(file.name) == 'video'" @click="playVideo(baseurl + 'd' + file.path,index)">
-                    <i class="fa fa-play" title="播放" aria-hidden="true" v-if="!video.show || video.index != index"></i>
-                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="video.index == index && video.show"></i> 
+                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(video.hash == hash && video.index == index)"></i> 
+                    <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
                   </span> 
                   <span v-else-if="checkFile(file.name) == 'audio'" @click="playAudio(baseurl + 'd' + file.path,index)">      
-                    <i class="fa fa-play" title="播放" aria-hidden="true" v-if="!audio.show || audio.index != index"></i>
-                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="audio.index == index && audio.show"></i> 
+                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
+                    <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
                   </span>                 
-                </td>                     
+                </td>
+                <!-- 开发环境 -->
+                <td v-else>
+                  <span v-if="checkFile(file.name) == 'video'" @click="playVideo(file.download_url,index)">
+                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(video.hash == hash && video.index == index)"></i> 
+                    <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
+                  </span> 
+                  <span v-else-if="checkFile(file.name) == 'audio'" @click="playAudio(file.download_url,index)">      
+                   
+                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
+                    <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i>
+                  </span>                 
+                </td>                            
               </tr>
             </tbody>
           </table>
@@ -106,16 +110,19 @@ export default {
       baseurl: "",
       video: {
         show: false,
-        index: 0 // 点击的元素
+        index: -1, // 点击的元素
+        // 记录正在播放视频的文件夹
+        hash: ""
       },
       audio: {
         show: false,
-        index: 0
-      }
+        index: -1,
+        hash: ""
+      },
+      isProduction: false
     }
   },
   created() {
-    console.log(checkFileType)
     this.init()
   },
   watch: {
@@ -149,6 +156,7 @@ export default {
   },
   methods: {
     init() {
+      this.keywords = ""
       this.hash = decodeURIComponent(window.location.hash)
       // hash为空或者hash为#/都认为hash为#/    
       if(!this.hash) {
@@ -161,6 +169,7 @@ export default {
       }
       console.log(process.env.NODE_ENV )
       if (process.env.NODE_ENV === 'production') {
+        this.isProduction = true
         this.baseurl = decodeURIComponent(window.location.origin) + decodeURIComponent(window.location.pathname) 
       } else {
         this.baseurl = decodeURIComponent(this.baseURL) + decodeURIComponent(window.location.pathname) 
@@ -288,65 +297,77 @@ export default {
       num2 = next.is_folder? 1 : 0;
       return num2-num1;
     },
-    playVideo(playurl,index) {  
-      this.video.index = index
+    playVideo(playurl,index) {    
+      // 如果没有正在播放的视频
       if(!this.video.show) {
+        this.video.index = index
         this.video.show = true
-        // if(index == 0) {
-        //   playurl = "http://static.smartisanos.cn/common/video/t1-ui.mp4"
-        // } else {
-        //   playurl = "http://static.smartisanos.cn/common/video/video-jgpro.mp4"
-        // }
+        this.video.hash = this.hash
         this.$refs.mydplayer.play(playurl)
       } else {
-         this.$refs.mydplayer.close()
-      }
-      
-      
+        //如果有正在播放的视频，判断当前文件夹是否为正在播放的视频的文件夹
+        if(this.video.hash == this.hash) {
+          // 是正在播放的文件夹
+          if(this.video.index == index) {
+            // 点击的是相同的视频，关闭视频
+            this.$refs.mydplayer.close()
+            this.video.index = -1
+          } else {
+            // 点击的是不同的视频，switch
+            this.video.index = index
+            this.$refs.mydplayer.switch(playurl)
+          }
+         
+        } else {
+          // 不是正在播放的文件夹，switchVideo
+          this.video.index = index
+          this.$refs.mydplayer.switch(playurl)
+          this.video.hash = this.hash
+        }
+        
+      }    
     },
     playAudio(playurl,index) {
-      let audio
-      this.audio.index = index   
+      let audio = {
+        artist: this.files.children[index].name.split('-')[0],
+        name: this.files.children[index].name.split('-')[1],
+        url: playurl
+      }
       if(!this.audio.show) {
+        this.audio.index = index
         this.audio.show = true
-        // if(index == 0) {
-        //   //playurl = "https://cn-south-17-aplayer-46154810.oss.dogecdn.com/hikarunara.mp3"
-        //   audio = {
-        //       name: '光るなら',
-        //       artist: 'Goose house',
-        //       url: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/hikarunara.mp3',
-        //       cover: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/hikarunara.jpg',
-        //       // 歌词
-        //       //lrc: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/hikarunara.lrc',
-        //       theme: '#ebd0c2'
-        //   }
-        // } else {
-        //   //playurl = "https://cn-south-17-aplayer-46154810.oss.dogecdn.com/darling.mp3"
-        //   audio = {
-        //       name: 'トリカゴ',
-        //       artist: 'XX:me',
-        //       url: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/darling.mp3',
-        //       cover: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/darling.jpg',
-        //       // 歌词
-        //       //lrc: 'https://cn-south-17-aplayer-46154810.oss.dogecdn.com/darling.lrc',
-        //       theme: '#46718b'
-        //   }
-        // }
-        audio = {
-          name: "未知",
-          artist:"未知",
-          url: playurl
-        }
+        this.audio.hash = this.hash
         this.$refs.myaplayer.play(audio)
       } else {
-        this.$refs.myaplayer.close()
-      }      
+        //如果有正在播放的视频，判断当前文件夹是否为正在播放的视频的文件夹
+        if(this.audio.hash == this.hash) {
+          // 是正在播放的文件夹
+          if(this.audio.index == index) {
+            // 点击的是相同的视频，关闭视频
+            this.$refs.myaplayer.close()
+            this.audio.index = -1
+          } else {
+            // 点击的是不同的视频，switch
+            this.audio.index = index
+            this.$refs.myaplayer.switch(audio)
+          }
+         
+        } else {
+          // 不是正在播放的文件夹，switchaudio
+          this.audio.index = index
+          this.$refs.myaplayer.switch(audio)
+          this.audio.hash = this.hash
+        }
+        
+      }    
     },
     closeV() {
       this.video.show = false
+      this.video.index = -1
     },
     closeA() {
       this.audio.show = false
+      this.audio.index = -1
     },
     checkFile(name) {
       return checkFileType(name)
