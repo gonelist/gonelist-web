@@ -16,7 +16,7 @@
                   <span style="padding-left:5px" v-if="item || item!= '/'">/ </span>
                 </span>
               </h3>
-              <span id="back" class="icon-arrow-left2" @click="back"></span>
+              <span id="back" @click="back"><i class="fa fa-arrow-left" aria-hidden="true"></i></span>
             </div>
 
             <div class="search-container">
@@ -378,20 +378,32 @@ export default {
 </script>
 
 <style>
+ 
+  @media (max-width:992px) { 
+    .title,.list-wrapper {
+      width: 100%;
+    }
+  }
+  @media (min-width:993px) { 
+    .title,.list-wrapper {
+      width: 80%;
+    }
+  }
+
     body {
         background-color: rgb(247, 247, 249);
     }
     .title {
       font-size: 0;
       overflow: hidden;
-      width: 80%;
+      
       margin: 0 auto;
       height: 64px;
       padding: 15px 0;
     }
     .title h1 {
       float: left;
-      font-size: 28px;
+      font-size: 2.8rem;
       text-align: center;
       color: rgb(51, 51, 51);
       letter-spacing: 2px;
@@ -418,12 +430,12 @@ export default {
       overflow: hidden;
     }
     .title-icon h3 {
-      font-size: 18px;
+      font-size: 1.8rem;
       float: left;
     }
     #back {
       float: right;
-      font-size: 18px;
+      font-size: 1.8rem;
       padding-top: 16px;
       box-sizing: border-box;
       cursor: pointer;
@@ -507,7 +519,7 @@ export default {
         white-space: normal;
     }
     .list-wrapper {
-        width: 80%;
+       
         margin: 0 auto;
         margin-bottom: 40px;
         position: relative;
