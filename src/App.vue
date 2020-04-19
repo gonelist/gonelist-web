@@ -6,14 +6,11 @@
 </template>
 
 <script>
-
+import 'view-design/dist/styles/iview.css'
 // import Index from "@/views/index"
-// export default {
-//   components: {
-//     Index
-//   }
-  
-// }
+export default {
+ 
+}
 </script>
 
 <style>
@@ -30,5 +27,11 @@
 html {
   font-size: 10px;
 }
-
+a {
+  text-decoration: none;
+  color: black;
+}
+a:hover {
+  color: black;
+}
 </style>

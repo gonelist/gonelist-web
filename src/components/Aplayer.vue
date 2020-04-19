@@ -19,35 +19,59 @@
           loop: 'none',
           preload: 'auto',
           volume: 0.7
-        }
+        },
       }
     },
     methods: {
       play(audio) {
         console.log("现在播放：",audio)
+        this.closeNotice()
         this.ap = new APlayer({
             container: this.$refs.aplayer,
             ...this.options,
             audio: [audio],
         });
-        this.ap.on('play', function () {
-            console.log('playering');
-        });
+        this.$Notice.info({
+            name: "audio",
+            title: "音频",
+            //desc: `正在播放${audio.name}，点击右上角可关闭`,
+            duration: 0,
+            render: h => {
+                return h('span', [
+                    '正在播放',
+                    h('strong', audio.name),
+                    h('p',{
+                      style: "paddingTop:10px"
+                    },'点击右上角可关闭')
+                ])
+            },
+            onClose: () => {
+              this.close()
+            }
+          });
         this.ap.on('error',()=> {
+          this.closeNotice()
+          this.$Message.error('音乐播放出错，请重试');
           this.close()
-          alert('音乐播放出错，请重试');
         });
         this.ap.play()
       },
       switch(audio) {
-        this.ap.list.add(audio)
-        this.ap.seek(0)
-        this.ap.skipForward()
-        this.ap.list.remove(0)
+        this.closeNotice()
+        // this.ap.list.add(audio)
+        // this.ap.seek(0)
+        // this.ap.skipForward()
+        // this.ap.list.remove(0)
+        this.play(audio)
+
       },
       close() {
+        this.closeNotice()
         this.ap.pause()
         this.$emit("closeAudio")
+      },
+      closeNotice() {
+        this.$Notice.close("audio")
       }
     }
   }
@@ -58,7 +82,16 @@
   position: fixed;
   left: 0;
   bottom: 0;
-  width: 400px;
+}
+@media (max-width: 768px) { 
+  .aplayer {
+    width: 100%;
+  }
+}
+@media (min-width: 769px) { 
+  .aplayer {
+    width: 400px;
+  }
 }
  /* .player-content {
   position: fixed;

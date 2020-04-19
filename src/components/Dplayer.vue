@@ -31,6 +31,7 @@
     methods: {
       play(url) {
         console.log("现在播放：",url)
+        this.closeNotice()
         this.dp = new DPlayer({
             container: this.$refs.dplayer,
             ...this.options,
@@ -38,12 +39,27 @@
                 url: url,
             }
         });
-        this.dp.on('play', function () {
-            console.log('playering');
+        this.$Notice.info({
+          name: "video",
+          title: "视频",
+          //desc: `正在播放${audio.name}，点击右上角可关闭`,
+          duration: 0,
+          render: h => {
+              return h('span', [
+                  '正在播放视频',
+                  h('p',{
+                    style: "paddingTop:10px"
+                  },'点击右上角可关闭')
+              ])
+          },
+          onClose: () => {
+            this.close()
+          }
         });
         this.dp.on('error',() => {
+          this.closeNotice()
           this.close()
-          alert('视频播放出错，请重试');
+          this.$Message.error('视频播放出错，请重试');
         });
         this.dp.play()
       },
@@ -54,8 +70,12 @@
         this.dp.play()
       },
       close() {
+        this.closeNotice()
         this.dp.pause()
         this.$emit("closeVideo")
+      },
+      closeNotice() {
+        this.$Notice.close("video")
       }
     }
   }
@@ -97,7 +117,18 @@
   position: fixed;
   left: 0;
   bottom: 0;
-  width: 600px;
   height: 300px;
+  
+}
+@media (max-width: 768px) { 
+  .dplayer {
+    width: 100%;
+  }
+}
+@media (min-width: 769px) { 
+  .dplayer {
+    width: 600px;
+
+  }
 }
 </style>

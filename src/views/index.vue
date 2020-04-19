@@ -16,7 +16,7 @@
                   <span style="padding-left:5px" v-if="item || item!= '/'">/ </span>
                 </span>
               </h3>
-              <span id="back" @click="back"><i class="fa fa-arrow-left" aria-hidden="true"></i></span>
+              <span id="back" @click="back" title="返回上一级"><i class="fa fa-arrow-left" aria-hidden="true"></i></span>
             </div>
 
             <div class="search-container">
@@ -24,59 +24,55 @@
             </div>
         </div>
 
-         <div class="list-body-container">
-          <table class="list-table">
-            <tbody>
-              <tr class="list-title">
-                <th>文件</th>
-                <th>时间</th>
-                <th>大小</th>
-                <th></th>
-              </tr>
-              <tr class="item" v-for="(file,index) in (files.children || [])" v-bind:key="file.name">
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">
-                  <a :href="path.length == 1 ? (href  + file.name) : (href +'/'  +file.name)" :title="path.length == 1 ? (href +file.name) : (href+ '/'  +file.name)" v-if="file.is_folder" @click.prevent="nextFile(index)">
-                    <span><i class="fa fa-folder-open" aria-hidden="true"></i> </span>
-                    <span>{{file.name}}</span>
-                  </a>
-                  <a :href="baseurl + 'd' + file.path" :title="baseurl + 'd' + file.path" target="_blank" v-else>                
-                    <span> 
-                      <i class="fa" v-bind:class="['fa-file-' + checkFile(file.name) + '-o']" aria-hidden="true"></i> 
-                    </span>
-                    <span>{{file.name}}</span>
-                  </a>
-                </td>
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.last_modify_time | formatTime}}</td>
-                <td class="list-data" v-if=" !keywords || reg.test(file.name)">{{file.size | formatSize}}</td>    
-                <!-- 生产环境   -->
-                <td v-if="isProduction">
-                  <span v-if="checkFile(file.name) == 'video'" @click="playVideo(baseurl + 'd' + file.path,index)">
-                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(video.hash == hash && video.index == index)"></i> 
-                    <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
-                  </span> 
-                  <span v-else-if="checkFile(file.name) == 'audio'" @click="playAudio(baseurl + 'd' + file.path,index)">      
-                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
-                    <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
-                  </span>                 
-                </td>
-                <!-- 开发环境 -->
-                <td v-else>
-                  <span v-if="checkFile(file.name) == 'video'" @click="playVideo(file.download_url,index)">
-                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(video.hash == hash && video.index == index)"></i> 
-                    <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
-                  </span> 
-                  <span v-else-if="checkFile(file.name) == 'audio'" @click="playAudio(file.download_url,index)">      
-                   
-                    <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
-                    <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i>
-                  </span>                 
-                </td>                            
-              </tr>
-            </tbody>
-          </table>
+        <div class="list-body-container">
+          <Table :loading="loading" :columns="header" :data="files.children | filterData(reg, keywords)">
+            <template slot-scope="{ row, index }" slot="name">
+                <a :href="path.length == 1 ? (href  + row.name) : (href +'/'  +row.name)" :title="path.length == 1 ? (href +row.name) : (href+ '/'  +row.name)" v-if="row.is_folder" @click.prevent="nextFile(index)">
+                  <span class="file-icon"><i class="fa fa-folder-open" aria-hidden="true"></i> </span>
+                  <span>{{row.name}}</span>
+                </a>
+                <a :href="baseurl + 'd' + row.path" :title="baseurl + 'd' + row.path" target="_blank" v-else>                
+                  <span  class="file-icon"> 
+                    <i class="fa" v-bind:class="['fa-file-' + checkFile(row.name) + '-o']" aria-hidden="true"></i> 
+                  </span>
+                  <span>{{row.name}}</span>
+                </a>
+            </template>
+            <template slot-scope="{ row }" slot="last_modify_time">
+                {{ row.last_modify_time | formatTime  }}
+            </template>
+            <template slot-scope="{ row }" slot="size">
+                {{ row.size | formatSize }}
+            </template>
+            <template slot-scope="{ row,index }" slot="action">
+              <!-- 生产环境 -->
+              <div class="paly" v-if="isProduction">
+                <span v-if="checkFile(row.name) == 'video'" @click="playVideo(baseurl + 'd' + row.path,index)">
+                  <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(video.hash == hash && video.index == index)"></i> 
+                  <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
+                </span> 
+                <span v-else-if="checkFile(row.name) == 'audio'" @click="playAudio(baseurl + 'd' + row.path,index)">      
+                  <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
+                  <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
+                </span>      
+              </div>
+              <!-- 开发环境 -->
+              <div class="play" v-else>
+                <span v-if="checkFile(row.name) == 'video'" @click="playVideo(row.download_url,index)">
+                  <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(video.hash == hash && video.index == index)"></i> 
+                  <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
+                </span> 
+                <span v-else-if="checkFile(row.name) == 'audio'" @click="playAudio(row.download_url,index)">      
+                  
+                  <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
+                  <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i>
+                </span>    
+              </div>                         
+            </template>
+          </Table>
         </div>
+        
       </div>
-
     </div>
     <!-- <My-DPlayer :video="video" ref="mydplayer" v-on:close="closePlayer" v-show="video.show"></My-DPlayer>  -->
     <D-Player v-on:closeVideo="closeV" ref="mydplayer" v-show="video.show"></D-Player>
@@ -98,6 +94,32 @@ export default {
   },
   data() {
     return {
+      header:[ 
+        {
+          title : "文件",
+          slot: "name",
+          minWidth: 400
+        },
+        {
+          title : "时间",
+          slot: "last_modify_time",
+          align:"right",
+          width:200
+        },
+        {
+          title : "大小",
+          slot: "size",
+          align: "right",
+          width:100
+        },
+        {
+          title: " ",
+          slot: "action",
+          width: 100,
+          align: "center",
+        }
+      ],
+      loading: true,
       Ishow: 0,
       files: [],
       path: [],
@@ -152,7 +174,14 @@ export default {
         result = (size/1024).toFixed(2) + "KB";
       }
       return result;
-  }
+    },
+    filterData(files,reg,keywords) {
+      if(!keywords) {
+        return files
+      } else {
+        return files.filter(item => reg.test(item.name))
+      }
+    }
   },
   methods: {
     init() {
@@ -198,15 +227,16 @@ export default {
       }
       console.log("请求的参数：",param)
       getAllFiles(this.baseURL, param).then(res => {
+        this.loading = false
         if(res.code == 400) {
           window.location.href = `${this.baseURL}/login`;
         } else if(res.code == 10002) {
-          alert(res.msg)
+          this.$Message.error(res.msg)
         } else {
           this.files = res.data;
           this.Ishow = res ? 1 : 0;       
-          if(!this.files) {
-            this.files = []
+          if(!this.files.children) {
+            this.files.children = []
           } else {
              // 如果匹配到文件夹就直接下载
             if(!this.files.is_folder) {
@@ -219,9 +249,7 @@ export default {
             
             // 排序一下
             this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
-          }
-        
-         
+          }            
         }
         
       })
@@ -252,7 +280,7 @@ export default {
     back() {
       //console.log(this.path.length)
       if(this.path.length == 1) {
-        console.log("已在根目录，无法返回")
+        this.$Message.warning("已在根目录，无法返回")
       } else {
         this.path.pop()
         this.hash = "";
@@ -279,7 +307,7 @@ export default {
         }
         window.location.hash = this.hash
       } else {
-        console.log("已在该目录")
+        this.$Message.warning("已在该目录")
       }    
     },
     search() {
@@ -394,49 +422,28 @@ export default {
         background-color: rgb(247, 247, 249);
     }
     .title {
-      font-size: 0;
-      overflow: hidden;
-      
       margin: 0 auto;
-      height: 64px;
-      padding: 15px 0;
+      padding: 25px 0;
     }
     .title h1 {
-      float: left;
-      font-size: 2.8rem;
-      text-align: center;
+      text-align: left;
       color: rgb(51, 51, 51);
       letter-spacing: 2px;
       line-height: 64px;
       margin:0;
     }
-    .title .logout {
-      float: right;
-      height: 100%;
-      cursor: pointer;
+  
 
-    }
-    .logout svg {
-        margin-top: 17px;
-       height: 30px;
-       width:30px
-    }
-    a {
-            text-decoration: none;
-            color: black;
-        }
     .title-icon {
-      font-size: 0;
-      overflow: hidden;
-    }
-    .title-icon h3 {
-      font-size: 1.8rem;
-      float: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      font-size: 1.2em;
     }
     #back {
       float: right;
-      font-size: 1.8rem;
-      padding-top: 16px;
+      font-size: 18px;
       box-sizing: border-box;
       cursor: pointer;
     }
@@ -462,61 +469,6 @@ export default {
     .list-data span:last-child {
         color: black;
         padding-left: 10px;
-    }
-    table {
-        table-layout: fixed;
-        word-break: break-all;
-    }
-    /* .item {
-      cursor: pointer;
-    } */
-    td a {
-      display: inline-block;
-      width: 100%;
-    }
-    th {
-        font-weight: bold;
-    }
-    th,td {
-        text-align: right;
-    }
-    th:first-child,td:first-child {
-      text-align: left;
-    }
-    th:first-child {
-        padding: 5px;
-        padding-left: 25px;
-        width: 68%;
-    }
-    th:nth-child(2),th:nth-child(3),td:nth-child(2),td:nth-child(3){
-        width: 30%;
-    }
-    th:nth-child(3),td:nth-child(3){
-        width: 10%;
-    }
-    th:nth-child(4),td:nth-child(4){
-        width: 10%;
-        text-align: center;
-    }
-    td:nth-child(4) i {
-      padding: 10px;
-      cursor: pointer;
-    }
-    td {
-        font-weight: normal;
-        padding-top: 5px;
-        padding-bottom: 5px;
-    }
-    td:first-child{
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    td:first-child:hover {
-        overflow: visible;
-        text-overflow: clip;
-        font-weight: bold;
-        white-space: normal;
     }
     .list-wrapper {
        
@@ -550,5 +502,31 @@ export default {
     .item:hover {
         background-color: gainsboro;
     }
-
+    .file-icon {
+      padding-right: 10px;
+    }
+    .ivu-table td {
+      border-bottom: none;
+    }
+    .ivu-table a {
+      display: inline-block;
+      width: 100%;
+    }
+    .ivu-table a:hover {
+      font-weight: bolder;
+    }
+    .ivu-table th {
+      background: #fff;
+      border-bottom: none;
+    }
+    .ivu-table-cell {
+      white-space: nowrap;
+    }
+    .ivu-table-row-hover .ivu-table-cell {
+      white-space:normal
+    }
+  .play span {
+    padding: 5px;
+    cursor: pointer;
+  }
 </style>
