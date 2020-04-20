@@ -39,7 +39,7 @@
             render: h => {
                 return h('span', [
                     '正在播放',
-                    h('strong', audio.name),
+                    h('strong', audio.fullName),
                     h('p',{
                       style: "paddingTop:10px"
                     },'点击右上角可关闭')
@@ -51,7 +51,7 @@
           });
         this.ap.on('error',()=> {
           this.closeNotice()
-          this.$Message.error('音乐播放出错，请重试');
+          this.$Message.error('音频播放出错，请重试');
           this.close()
         });
         this.ap.play()

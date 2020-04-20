@@ -5,11 +5,11 @@ import store from './store'
 import axios from 'axios'
 import "font-awesome/css/font-awesome.min.css"
 
-import { Message, Table, Notice } from 'view-design'
+import { Message, Table, Notice, Icon } from 'view-design'
 Vue.prototype.$Message = Message
 Vue.prototype.$Notice = Notice
 Vue.component('Table', Table)
-
+Vue.component('Icon', Icon)
 Vue.config.productionTip = false
 
 if (process.env.NODE_ENV === 'production') {

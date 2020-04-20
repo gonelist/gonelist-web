@@ -10,7 +10,7 @@
   
 </template>
 <script>
-  import 'dplayer/dist/DPlayer.min.css';
+  //import 'dplayer/dist/DPlayer.min.css';
   import DPlayer from 'dplayer';
 
   export default {

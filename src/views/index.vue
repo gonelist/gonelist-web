@@ -1,5 +1,5 @@
 <template>
-  <div class="content" v-if="Ishow">
+  <div class="content">
     <div class="title">
        <h1>GONEList</h1>
     </div>
@@ -10,13 +10,13 @@
         <div class="header-container">
             <div class="title-icon">
               <h3>
-                <span class="icon-home"></span>
+                <span><i class="fa fa-home" aria-hidden="true"></i> </span>
                 <span v-for="(item,index) in path" :key="item" @click="toPath(index)">
                   <span>{{item=='/' ? 'root':item}}</span>
                   <span style="padding-left:5px" v-if="item || item!= '/'">/ </span>
                 </span>
               </h3>
-              <span id="back" @click="back" title="返回上一级"><i class="fa fa-arrow-left" aria-hidden="true"></i></span>
+              <Icon type="md-arrow-back"  id="back" @click="back" title="返回上一级" />
             </div>
 
             <div class="search-container">
@@ -25,7 +25,7 @@
         </div>
 
         <div class="list-body-container">
-          <Table :loading="loading" :columns="header" :data="files.children | filterData(reg, keywords)">
+          <Table :loading="loading" no-data-text="暂无文件" :columns="header" :data="files.children | filterData(reg, keywords)">
             <template slot-scope="{ row, index }" slot="name">
                 <a :href="path.length == 1 ? (href  + row.name) : (href +'/'  +row.name)" :title="path.length == 1 ? (href +row.name) : (href+ '/'  +row.name)" v-if="row.is_folder" @click.prevent="nextFile(index)">
                   <span class="file-icon"><i class="fa fa-folder-open" aria-hidden="true"></i> </span>
@@ -98,19 +98,49 @@ export default {
         {
           title : "文件",
           slot: "name",
-          minWidth: 400
+          key: "is_folder",
+          minWidth: 400,
+          sortable: true,
+          sortType: "desc",
+          sortMethod: (a, b, type)=> {
+            if(type === 'desc') {
+              return a > b ? -1 : 1
+            } else {
+              return a > b ? 1 : -1
+            }
+          }
         },
         {
           title : "时间",
           slot: "last_modify_time",
+          key:"last_modify_time",
           align:"right",
-          width:200
+          width:200,
+          sortable: true,
+          //desc倒序 asc顺序
+          sortMethod: (a, b, type) => {
+            let at = new Date(a);
+            let bt = new Date(b);
+            if(type === 'desc'){
+              return at > bt ? -1 : 1;
+            }
+            else return at > bt ? 1 : -1;
+          }
         },
         {
           title : "大小",
           slot: "size",
+          key: "size",
           align: "right",
-          width:100
+          width:100,
+          sortable: true,
+           //desc倒序升序 asc顺序降序
+          sortMethod: (a, b, type) => {
+            if(type === 'desc'){
+              return a > b ? -1 : 1;
+            } else return a > b ? 1 : -1;
+          }
+          
         },
         {
           title: " ",
@@ -120,7 +150,6 @@ export default {
         }
       ],
       loading: true,
-      Ishow: 0,
       files: [],
       path: [],
       keywords: "",
@@ -226,6 +255,7 @@ export default {
         param = param.slice(1)
       }
       console.log("请求的参数：",param)
+      this.loading = true
       getAllFiles(this.baseURL, param).then(res => {
         this.loading = false
         if(res.code == 400) {
@@ -233,8 +263,7 @@ export default {
         } else if(res.code == 10002) {
           this.$Message.error(res.msg)
         } else {
-          this.files = res.data;
-          this.Ishow = res ? 1 : 0;       
+          this.files = res.data;  
           if(!this.files.children) {
             this.files.children = []
           } else {
@@ -246,9 +275,7 @@ export default {
               //window.open(this.files.download_url, "_blank")
               window.location.href = this.files.download_url
             }
-            
-            // 排序一下
-            this.files.children ? this.files.children.sort(this.sortByFileType) : this.files.children;
+           
           }            
         }
         
@@ -318,13 +345,6 @@ export default {
         window.location.hash = ""
       })
     },
-      
-    sortByFileType(pre, next) {
-      let num1,num2;
-      num1 = pre.is_folder ? 1 : 0;
-      num2 = next.is_folder? 1 : 0;
-      return num2-num1;
-    },
     playVideo(playurl,index) {    
       // 如果没有正在播放的视频
       if(!this.video.show) {
@@ -359,7 +379,8 @@ export default {
       let audio = {
         artist: this.files.children[index].name.split('-')[0],
         name: this.files.children[index].name.split('-')[1],
-        url: playurl
+        url: playurl,
+        fullName:this.files.children[index].name
       }
       if(!this.audio.show) {
         this.audio.index = index
@@ -406,127 +427,5 @@ export default {
 </script>
 
 <style>
- 
-  @media (max-width:992px) { 
-    .title,.list-wrapper {
-      width: 100%;
-    }
-  }
-  @media (min-width:993px) { 
-    .title,.list-wrapper {
-      width: 80%;
-    }
-  }
-
-    body {
-        background-color: rgb(247, 247, 249);
-    }
-    .title {
-      margin: 0 auto;
-      padding: 25px 0;
-    }
-    .title h1 {
-      text-align: left;
-      color: rgb(51, 51, 51);
-      letter-spacing: 2px;
-      line-height: 64px;
-      margin:0;
-    }
-  
-
-    .title-icon {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-      font-size: 1.2em;
-    }
-    #back {
-      float: right;
-      font-size: 18px;
-      box-sizing: border-box;
-      cursor: pointer;
-    }
-     #search{
-        margin: 0;
-        border: 0 none;
-        border-radius:15px;
-        width: 100%;
-        padding: 5px 10px;
-        text-align: left;
-        font-size: inherit;
-        color: #000000;
-        background-color: white;
-        outline: none;
-        box-sizing: border-box;
-    }
-    h3>span>span:first-child {
-      cursor: pointer;
-    }
-    h3>span>span:first-child:hover{
-        text-decoration: underline;
-    }
-    .list-data span:last-child {
-        color: black;
-        padding-left: 10px;
-    }
-    .list-wrapper {
-       
-        margin: 0 auto;
-        margin-bottom: 40px;
-        position: relative;
-        box-shadow: 0 0 32px 0 rgba(0, 0, 0, 0.1);
-    }
-    .header-container {
-        margin: 0;
-        border: 0 none;
-        padding: 10px 30px 10px 30px;
-        text-align: left;
-        font-weight: normal;
-        color: #000000;
-        background-color: #f7f7f9;
-    }
-    .list-body-container {
-        left: 0;
-        overflow-x: hidden;
-        overflow-y: auto;
-        box-sizing: border-box;
-        background: white;
-        position: relative;
-    }
-    .list-table {
-        width: 100%;
-        padding: 15px;
-        border-spacing: 0;
-    }
-    .item:hover {
-        background-color: gainsboro;
-    }
-    .file-icon {
-      padding-right: 10px;
-    }
-    .ivu-table td {
-      border-bottom: none;
-    }
-    .ivu-table a {
-      display: inline-block;
-      width: 100%;
-    }
-    .ivu-table a:hover {
-      font-weight: bolder;
-    }
-    .ivu-table th {
-      background: #fff;
-      border-bottom: none;
-    }
-    .ivu-table-cell {
-      white-space: nowrap;
-    }
-    .ivu-table-row-hover .ivu-table-cell {
-      white-space:normal
-    }
-  .play span {
-    padding: 5px;
-    cursor: pointer;
-  }
+ @import url("../assets/index.css");
 </style>

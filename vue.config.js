@@ -22,7 +22,14 @@ module.exports = {
         },
         extraFiles: []
       })
-    ]
+    ],
+    // // 使用cdn引入常用包
+    // externals: {
+    //   'vue': "Vue",
+    //   "vue-router": "VueRouter",
+    //   "view-design":"viewDesign",
+    //   "axios": "axios"
+    // }
   },
   pages: {
     index: {
