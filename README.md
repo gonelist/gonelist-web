@@ -1,17 +1,38 @@
-# GONEList-Web
+## GONEList-Web
 
-## 项目配置
+这是一款使用 golang + vue 编写的基于 onedrive 的在线共享网盘
 
-在project.config.js里面配置
+效果展示：https://gonelist.cugxuan.cn
 
-## 视频播放和音频播放
+后端项目地址：https://github.com/cugxuan/gonelist
+
+有问题请提 issue，也可以进入 QQ 群交流，群号：1083165608
+
+## 功能特性
+
+- 文件浏览
+
+- 文件下载
+
+- 在线视频播放
+
+- 在线音频播放
+
+## 项目说明
+
+正在使用 vue + iview 搭建
+
+
+### 视频播放和音频播放
 
 视频播放库 [DPlayer](http://dplayer.js.org/)
 
 
 音频播放库 [APlayer](https://aplayer.js.org/)
 
-## publicPath不建议修改
+## 注意事项
+
+### publicPath不建议修改
 
 要实现根据hash去寻找对应文件夹下的文件，本项目把路由设置为history模式，[使用history模式要尽量避免使用publicPath](https://cli.vuejs.org/zh/config/#publicpath)，打包后的文件放置在根目录
 

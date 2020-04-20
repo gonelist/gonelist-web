@@ -135,7 +135,7 @@
     .ivu-table-row-hover .ivu-table-cell {
       white-space:normal
     } */
-    .play span {
+    .play{
       padding: 5px;
       cursor: pointer;
     }

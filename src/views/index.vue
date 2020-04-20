@@ -46,23 +46,23 @@
             </template>
             <template slot-scope="{ row,index }" slot="action">
               <!-- 生产环境 -->
-              <div class="paly" v-if="isProduction">
-                <span v-if="checkFile(row.name) == 'video'" @click="playVideo(baseurl + 'd' + row.path,index)">
+              <div v-if="isProduction">
+                <span class="play" v-if="checkFile(row.name) == 'video'" @click="playVideo(baseurl + 'd' + row.path,index)">
                   <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(video.hash == hash && video.index == index)"></i> 
                   <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
                 </span> 
-                <span v-else-if="checkFile(row.name) == 'audio'" @click="playAudio(baseurl + 'd' + row.path,index)">      
+                <span class="play" v-else-if="checkFile(row.name) == 'audio'" @click="playAudio(baseurl + 'd' + row.path,index)">      
                   <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
                   <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
                 </span>      
               </div>
               <!-- 开发环境 -->
-              <div class="play" v-else>
-                <span v-if="checkFile(row.name) == 'video'" @click="playVideo(row.download_url,index)">
+              <div v-else>
+                <span class="play" v-if="checkFile(row.name) == 'video'" @click="playVideo(row.download_url,index)">
                   <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(video.hash == hash && video.index == index)"></i> 
                   <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
                 </span> 
-                <span v-else-if="checkFile(row.name) == 'audio'" @click="playAudio(row.download_url,index)">      
+                <span class="play" v-else-if="checkFile(row.name) == 'audio'" @click="playAudio(row.download_url,index)">      
                   
                   <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
                   <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i>

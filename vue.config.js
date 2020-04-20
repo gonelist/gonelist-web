@@ -1,5 +1,4 @@
 
-const ProjectConfig = require("./project.config")
 //让打包的时候输出可配置的文件
 var GenerateAssetPlugin = require('generate-asset-webpack-plugin');
 var createServerConfig = function(compilation){
@@ -11,7 +10,7 @@ var createServerConfig = function(compilation){
 }
 
 module.exports = {
-  publicPath: ProjectConfig.publicPath,
+  // publicPath: ProjectConfig.publicPath,
   productionSourceMap: false,
   configureWebpack: {
     plugins: [
@@ -41,7 +40,7 @@ module.exports = {
       filename: 'index.html',
       // 当使用 title 选项时，
       // template 中的 title 标签需要是 <title><%= htmlWebpackPlugin.options.title %></title>
-      title: ProjectConfig.title
+      title: 'GONEList'
     }
   }
 }
