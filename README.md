@@ -22,7 +22,6 @@
 
 正在使用 vue + iview 搭建
 
-
 ### 视频播放和音频播放
 
 视频播放库 [DPlayer](http://dplayer.js.org/)

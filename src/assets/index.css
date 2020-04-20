@@ -129,12 +129,12 @@
       border-bottom: none;
       height: 36px;
     }
-    /* .ivu-table-cell {
+    .ivu-table-cell {
       white-space: nowrap;
     }
     .ivu-table-row-hover .ivu-table-cell {
       white-space:normal
-    } */
+    }
     .play{
       padding: 5px;
       cursor: pointer;
