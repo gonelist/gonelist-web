@@ -10,7 +10,6 @@
   
 </template>
 <script>
-  //import 'dplayer/dist/DPlayer.min.css';
   import DPlayer from 'dplayer';
 
   export default {
@@ -114,7 +113,7 @@
     height: 400px;
 } */
 .dplayer {
-  position: fixed;
+  position: fixed !important;
   left: 0;
   bottom: 0;
   height: 300px;
