@@ -282,20 +282,6 @@ export default {
       })
     },
     nextFile(index) {
-      // if(this.files.children[index].download_url) {
-      //   // // 有下载链接直接下载
-      //   console.log("下载",this.files.children[index].download_url)
-      //   window.open(this.files.children[index].download_url, "_blank")
-
-      // } else {
-      //   if(this.path.length == 1) {
-      //     this.hash  =  this.hash + this.files.children[index].name         
-      //   } else {
-      //     this.hash  =  this.hash + '/'  + this.files.children[index].name
-      //   }
-        
-      //   window.location.hash = this.hash
-      // }
       if(this.path.length == 1) {
         this.hash  =  this.hash + this.files.children[index].name         
       } else {
@@ -347,11 +333,15 @@ export default {
     },
     playVideo(playurl,index) {    
       // 如果没有正在播放的视频
+      let video = {
+        playurl: playurl,
+        name: this.files.children[index].name
+      }
       if(!this.video.show) {
         this.video.index = index
         this.video.show = true
         this.video.hash = this.hash
-        this.$refs.mydplayer.play(playurl)
+        this.$refs.mydplayer.play(video)
       } else {
         //如果有正在播放的视频，判断当前文件夹是否为正在播放的视频的文件夹
         if(this.video.hash == this.hash) {
@@ -363,13 +353,13 @@ export default {
           } else {
             // 点击的是不同的视频，switch
             this.video.index = index
-            this.$refs.mydplayer.switch(playurl)
+            this.$refs.mydplayer.switch(video)
           }
          
         } else {
           // 不是正在播放的文件夹，switchVideo
           this.video.index = index
-          this.$refs.mydplayer.switch(playurl)
+          this.$refs.mydplayer.switch(video)
           this.video.hash = this.hash
         }
         

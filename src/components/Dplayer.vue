@@ -24,18 +24,20 @@
           hotkey: true,
           preload: 'auto',
           volume: 0.7
-        }
+        },
+        name: ""
       }
     },
     methods: {
-      play(url) {
-        console.log("现在播放：",url)
+      play(video) {
+        console.log("现在播放：",video.playurl)
+        this.name = video.name
         this.closeNotice()
         this.dp = new DPlayer({
             container: this.$refs.dplayer,
             ...this.options,
             video: {
-                url: url,
+                url: video.url,
             }
         });
         this.$Notice.info({
@@ -46,6 +48,7 @@
           render: h => {
               return h('span', [
                   '正在播放视频',
+                  h('strong', this.name),
                   h('p',{
                     style: "paddingTop:10px"
                   },'点击右上角可关闭')
@@ -62,15 +65,19 @@
         });
         this.dp.play()
       },
-      switch(url) {
+      switch(video) {
+        this.name = video.name
+       
         this.dp.switchVideo({
-          url: url
+          url: video.playurl
         })
         this.dp.play()
+        
       },
       close() {
         this.closeNotice()
         this.dp.pause()
+        //this.dp.destroy()
         this.$emit("closeVideo")
       },
       closeNotice() {
@@ -127,7 +134,6 @@
 @media (min-width: 769px) { 
   .dplayer {
     width: 600px;
-
   }
 }
 </style>
