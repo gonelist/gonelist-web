@@ -1,9 +1,9 @@
 export function checkFileType(name) {
   let type = "";
   name = name.toLowerCase()
-  if(/\.(mp4|ogg|webm)$/.test(name)) {
+  if(/\.(mkv|mp4|webm|avi|mpg|mpeg|rm|rmvb|mov|wmv|asf|ts|flv)$/.test(name)) {
     type = "video";
-  } else if (/\.(wav|mp3|ogg|acc|webm)$/.test(name)) {
+  } else if (/\.(wav|mp3|ogg|acc|webm|m4a)$/.test(name)) {
     type = 'audio'
   } else if(/\.(rar|zip)$/.test(name)) {
     type = 'archive'
