@@ -192,9 +192,9 @@ export default {
     formatSize(size) {
       let result;
       // size为字节
-      if(size/1024/1024/2014 >=1) {
+      if(size/1024/1024/1024 >=1) {
         // 可以转化为GB就转化为GB
-        result = (size/1024/1024/2014).toFixed(2) + "GB";
+        result = (size/1024/1024/1024).toFixed(2) + "GB";
       } else if (size/1024/1024 >=1) {
         // 可以转化为MB就转化为MB
         result = (size/1024/1024).toFixed(2) + "MB";
