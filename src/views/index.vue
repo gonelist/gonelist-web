@@ -74,6 +74,16 @@
         
       </div>
     </div>
+
+    <div class="readme">
+      <div class="card-header">
+         <svg class="octicon octicon-book" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M3 5h4v1H3V5zm0 3h4V7H3v1zm0 2h4V9H3v1zm11-5h-4v1h4V5zm0 2h-4v1h4V7zm0 2h-4v1h4V9zm2-6v9c0 .55-.45 1-1 1H9.5l-1 1-1-1H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1h5.5l1 1 1-1H15c.55 0 1 .45 1 1zm-8 .5L7.5 3H2v9h6V3.5zm7-.5H9.5l-.5.5V12h6V3z"></path></svg>
+        <h3>
+          README.md
+        </h3>
+      </div>
+      <div class="markdown-body" v-html="readme"></div>
+    </div>
     <!-- <My-DPlayer :video="video" ref="mydplayer" v-on:close="closePlayer" v-show="video.show"></My-DPlayer>  -->
     <D-Player v-on:closeVideo="closeV" ref="mydplayer" v-show="video.show"></D-Player>
     <A-Player v-on:closeAudio="closeA" ref="myaplayer" v-show="audio.show"></A-Player>
@@ -81,7 +91,7 @@
 </template>
 
 <script>
-import { getAllFiles,logout } from "../API/api"
+import { getAllFiles,logout,getReadme } from "../API/api"
 import { checkFileType } from '../utils/index'
 import DPlayer from '../components/Dplayer';
 import APlayer from '../components/Aplayer'
@@ -170,11 +180,16 @@ export default {
         index: -1,
         hash: ""
       },
-      isProduction: false
+      isProduction: false,
+      readme: ""
     }
   },
   created() {
     this.init()
+    getReadme(this.baseURL).then(res => {
+      this.readme = res.data
+      //console.log(this.readme)
+    })
   },
   watch: {
     $route: {

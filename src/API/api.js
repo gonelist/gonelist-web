@@ -15,3 +15,9 @@ export function logout(baseURL) {
     url: `${baseURL}/cancelLogin`
   })
 }
+export function getReadme(baseURL) {
+  return request({
+    method: "get",
+    url: `${baseURL}/README`
+  })
+}

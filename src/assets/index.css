@@ -1,6 +1,6 @@
 
   @media (max-width:992px) { 
-    .title,.list-wrapper {
+    .title,.list-wrapper,.readme {
       width: 100%;
     }
     .title {
@@ -11,7 +11,7 @@
     }
   }
   @media (min-width:993px) { 
-    .title,.list-wrapper {
+    .title,.list-wrapper,.readme {
       width: 80%;
     }
     .title {
@@ -25,7 +25,7 @@
     body {
         background-color: rgb(247, 247, 249);
     }
-    .title {
+    .title,.readme, .list-wrapper {
       margin: 0 auto;
     }
     .title h1 {
@@ -80,8 +80,6 @@
         padding-left: 10px;
     }
     .list-wrapper {
-       
-        margin: 0 auto;
         margin-bottom: 40px;
         position: relative;
         box-shadow: 0 0 32px 0 rgba(0, 0, 0, 0.1);
@@ -142,3 +140,106 @@
     h3 {
       font-size: 1em;
     }
+    code, pre, tt {
+      font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;
+      font-size: 12px;
+  }  
+  .readme {
+      color: #24292e;     
+      background-color: #fff;
+      border: 1px solid #d1d5da;
+      border-radius: 3px;
+  }
+  .markdown-body {
+    padding: 32px;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+    font-size: 16px;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+  .markdown-body h1 {
+    padding-bottom: .3em;
+    border-bottom: 1px solid #eaecef;
+    font-size: 2em;
+    margin:24px 0 16px 0;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .markdown-body h1:first-child {
+    margin-top: 0;
+  }
+  .markdown-body h2 {
+    font-size: 1.5em;
+    padding-bottom: .3em;
+    border-bottom: 1px solid #eaecef;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .markdown-body h3 {
+    font-size: 1em;
+    padding-bottom: .3em;
+    border-bottom: 1px solid #eaecef;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .markdown-body p {
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+  .markdown-body ul {
+    padding-left: 2em;
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+  .markdown-body li+li {
+    margin-top: .25em;
+  }
+  .markdown-body pre {
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    word-wrap: normal;
+}
+.markdown-body pre code {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: initial;
+  border: 0;
+}
+.markdown-body pre>code {
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+}
+.markdown-body code {
+  border-radius: 3px;
+}
+  .card-header {
+    padding: 8px 0;
+    margin: -1px -1px 0;
+    background-color: #f7f7f9;
+    border: 1px solid #d1d5da;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    display: flex;
+    align-items: center;
+}
+  .card-header svg {
+    margin-left: 10px;
+  }
+  .card-header h3 {
+    padding-left: 5px;
+    font-weight: 600;
+  }

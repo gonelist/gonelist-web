@@ -30,7 +30,7 @@ if (process.env.NODE_ENV === 'production') {
   startApp()
 } else {
   // 为开发环境配置...
-  Vue.prototype.baseURL = "https://cloud.sillywa.com";
+  Vue.prototype.baseURL = "https://gonelist.cugxuan.cn";
   new Vue({
     router,
     store,
