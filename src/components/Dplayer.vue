@@ -71,7 +71,7 @@
         this.dp.switchVideo({
           url: video.playurl
         })
-        this.dp.play()
+        this.play(video)
         
       },
       close() {

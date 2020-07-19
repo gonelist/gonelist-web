@@ -55,6 +55,10 @@
                   <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
                   <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i> 
                 </span>      
+                <span class="play" title="预览" v-else-if="checkFile(row.name) == 'image'" @click="showImage(baseurl + 'd' + row.path,index)">      
+                  <i class="fa fa-eye" aria-hidden="true"></i>
+                </span>     
+               
               </div>
               <!-- 开发环境 -->
               <div v-else>
@@ -66,7 +70,10 @@
                   
                   <i class="fa fa-stop" title="停止" aria-hidden="true" v-if="(audio.hash == hash && audio.index == index)"></i> 
                   <i class="fa fa-play" title="播放" aria-hidden="true" v-else></i>
-                </span>    
+                </span>  
+                <span class="play" title="预览" v-else-if="checkFile(row.name) == 'image'" @click="showImage(row.download_url, index)">      
+                  <i class="fa fa-eye" aria-hidden="true"></i>
+                </span>       
               </div>                         
             </template>
           </Table>
@@ -87,7 +94,23 @@
     <!-- <My-DPlayer :video="video" ref="mydplayer" v-on:close="closePlayer" v-show="video.show"></My-DPlayer>  -->
     <D-Player v-on:closeVideo="closeV" ref="mydplayer" v-show="video.show"></D-Player>
     <A-Player v-on:closeAudio="closeA" ref="myaplayer" v-show="audio.show"></A-Player>
+
+    <Modal
+        v-model="modal"
+        title="加密文件"
+        @on-ok="ok"
+        @on-cancel="cancel">
+        <Input v-model="pass" type="password" placeholder="请输入密码"/>
+        <p style="color: red" v-show="pass_count > 1">密码错误!</p>
+    </Modal>
+    <Modal
+        v-model="img_modal"
+        title="图片预览"
+        footer-hide=true>
+        <img :src="img_src" alt="" style="width:100%;height:100%">
+    </Modal>
   </div>
+  
 </template>
 
 <script>
@@ -181,15 +204,16 @@ export default {
         hash: ""
       },
       isProduction: false,
-      readme: ""
+      readme: "",
+      modal: false,
+      pass: "",
+      pass_count: 0,
+      img_modal: false,
+      img_src: ""
     }
   },
   created() {
     this.init()
-    getReadme(this.baseURL).then(res => {
-      this.readme = res.data
-      //console.log(this.readme)
-    })
   },
   watch: {
     $route: {
@@ -271,12 +295,16 @@ export default {
       }
       console.log("请求的参数：",param)
       this.loading = true
-      getAllFiles(this.baseURL, param).then(res => {
+      getAllFiles(this.baseURL, param, this.pass).then(res => {
         this.loading = false
         if(res.code == 400) {
           window.location.href = `${this.baseURL}/login`;
         } else if(res.code == 10002) {
           this.$Message.error(res.msg)
+        } else if(res.code == 10007) {
+          // 需要输入密码
+          this.pass_count++
+          this.modal = true
         } else {
           this.files = res.data;  
           if(!this.files.children) {
@@ -294,6 +322,10 @@ export default {
           }            
         }
         
+      })
+      getReadme(this.baseURL, param, this.pass).then(res => {
+        this.readme = res.data
+        //console.log(this.readme)
       })
     },
     nextFile(index) {
@@ -348,6 +380,7 @@ export default {
     },
     playVideo(playurl,index) {    
       // 如果没有正在播放的视频
+      console.log(playurl)
       let video = {
         playurl: playurl,
         name: this.files.children[index].name
@@ -425,6 +458,18 @@ export default {
     },
     checkFile(name) {
       return checkFileType(name)
+    },
+    ok() {
+      this.init()
+    },
+    cancel() {
+      this.back()
+      this.modal = false
+      this.pass_count = 0
+    },
+    showImage(url,index){
+      this.img_modal = true
+      this.img_src = url
     }
   }
 
