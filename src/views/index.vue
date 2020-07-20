@@ -219,7 +219,7 @@
     ></A-Player>
 
     <Modal v-model="modal" title="加密文件" @on-ok="ok" @on-cancel="cancel">
-      <input v-model="pass" type="password" placeholder="请输入密码" />
+      <Input v-model="pass" type="password" placeholder="请输入密码" />
       <p style="color: red" v-show="pass_count > 1">密码错误!</p>
     </Modal>
     <Modal v-model="img_modal" title="图片预览" :footer-hide="true">
