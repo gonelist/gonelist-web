@@ -136,6 +136,7 @@ export default {
   left: 0;
   bottom: 0;
   height: 300px;
+  z-index: 10;
 }
 
 @media (max-width: 768px) {
