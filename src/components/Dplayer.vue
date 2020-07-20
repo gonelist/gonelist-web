@@ -1,10 +1,10 @@
 <template>
   <!-- <div class="player-content">
-    <div class="player">
-      <div class="close"><span @click="close"> 关闭</span></div>
-      
-    </div>
-  </div> -->
+        <div class="player">
+          <div class="close"><span @click="close"> 关闭</span></div>
+
+        </div>
+      </div> -->
 
   <div ref="dplayer"></div>
 </template>
@@ -14,7 +14,7 @@ import DPlayer from "dplayer";
 export default {
   data() {
     return {
-      dp: null,
+      dp: undefined,
       options: {
         autoplay: false,
         theme: "#b7daff",
@@ -27,17 +27,28 @@ export default {
       name: ""
     };
   },
+  mounted() {
+    if (!this.dp) {
+      this.$nextTick(() => {
+        this.dp = new DPlayer({
+          container: this.$refs.dplayer,
+          ...this.options,
+          video: {
+            type: "auto"
+          }
+        });
+      });
+    }
+  },
   methods: {
     play(video) {
-      console.log("现在播放：", video.playurl);
+      console.log("现在播放：", video.playUrl);
       this.name = video.name;
       this.closeNotice();
-      this.dp = new DPlayer({
-        container: this.$refs.dplayer,
-        ...this.options,
-        video: {
-          url: video.url
-        }
+      this.dp.switchVideo({
+        url: video.playUrl
+        // pic: 'second.png',
+        // thumbnails: 'second.jpg',
       });
       this.$Notice.info({
         name: "video",
@@ -90,47 +101,49 @@ export default {
 </script>
 <style>
 /* .player-content {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9;
-  background: rgba(128,128,128,0.48);
-}
-.player {
-    width: 80%;
-    height: 450px;
-    position: absolute;
-    left: 10%;
-    top: 50%;
-    margin: -225px 0 0 0;
-}
-.close {
-  text-align: right;
-  height:50px;
-  box-sizing: border-box;
-  line-height: 50px;
-  font-weight: bold;
-  font-size: 18px;
-}
-.close span {
-  cursor: pointer;
-}
-.dplayer {
-    height: 400px;
-} */
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 9;
+          background: rgba(128,128,128,0.48);
+        }
+        .player {
+            width: 80%;
+            height: 450px;
+            position: absolute;
+            left: 10%;
+            top: 50%;
+            margin: -225px 0 0 0;
+        }
+        .close {
+          text-align: right;
+          height:50px;
+          box-sizing: border-box;
+          line-height: 50px;
+          font-weight: bold;
+          font-size: 18px;
+        }
+        .close span {
+          cursor: pointer;
+        }
+        .dplayer {
+            height: 400px;
+        } */
 .dplayer {
   position: fixed !important;
   left: 0;
   bottom: 0;
   height: 300px;
 }
+
 @media (max-width: 768px) {
   .dplayer {
     width: 100%;
   }
 }
+
 @media (min-width: 769px) {
   .dplayer {
     width: 600px;
