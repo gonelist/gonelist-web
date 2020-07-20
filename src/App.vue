@@ -1,4 +1,3 @@
-
 <template>
   <div id="app">
     <router-view></router-view>
@@ -6,11 +5,9 @@
 </template>
 
 <script>
-import 'view-design/dist/styles/iview.css'
+import "view-design/dist/styles/iview.css";
 // import Index from "@/views/index"
-export default {
- 
-}
+export default {};
 </script>
 
 <style>

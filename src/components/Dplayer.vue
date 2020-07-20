@@ -7,85 +7,86 @@
   </div> -->
 
   <div ref="dplayer"></div>
-  
 </template>
 <script>
-  import DPlayer from 'dplayer';
+import DPlayer from "dplayer";
 
-  export default {
-    data() {
-      return {
-        dp: null,
-        options: {
-          autoplay: false,
-          theme: "#b7daff",
-          loop: false,
-          screenshot: false,
-          hotkey: true,
-          preload: 'auto',
-          volume: 0.7
+export default {
+  data() {
+    return {
+      dp: null,
+      options: {
+        autoplay: false,
+        theme: "#b7daff",
+        loop: false,
+        screenshot: false,
+        hotkey: true,
+        preload: "auto",
+        volume: 0.7
+      },
+      name: ""
+    };
+  },
+  methods: {
+    play(video) {
+      console.log("现在播放：", video.playurl);
+      this.name = video.name;
+      this.closeNotice();
+      this.dp = new DPlayer({
+        container: this.$refs.dplayer,
+        ...this.options,
+        video: {
+          url: video.url
+        }
+      });
+      this.$Notice.info({
+        name: "video",
+        title: "视频",
+        //desc: `正在播放${audio.name}，点击右上角可关闭`,
+        duration: 0,
+        render: h => {
+          return h("span", [
+            "正在播放视频",
+            h("strong", this.name),
+            h(
+              "p",
+              {
+                style: "paddingTop:10px"
+              },
+              "点击右上角可关闭"
+            )
+          ]);
         },
-        name: ""
-      }
+        onClose: () => {
+          this.close();
+        }
+      });
+      this.dp.on("error", () => {
+        this.closeNotice();
+        this.close();
+        this.$Message.error("视频播放出错，请重试");
+      });
+      this.dp.play();
     },
-    methods: {
-      play(video) {
-        console.log("现在播放：",video.playurl)
-        this.name = video.name
-        this.closeNotice()
-        this.dp = new DPlayer({
-            container: this.$refs.dplayer,
-            ...this.options,
-            video: {
-                url: video.url,
-            }
-        });
-        this.$Notice.info({
-          name: "video",
-          title: "视频",
-          //desc: `正在播放${audio.name}，点击右上角可关闭`,
-          duration: 0,
-          render: h => {
-              return h('span', [
-                  '正在播放视频',
-                  h('strong', this.name),
-                  h('p',{
-                    style: "paddingTop:10px"
-                  },'点击右上角可关闭')
-              ])
-          },
-          onClose: () => {
-            this.close()
-          }
-        });
-        this.dp.on('error',() => {
-          this.closeNotice()
-          this.close()
-          this.$Message.error('视频播放出错，请重试');
-        });
-        this.dp.play()
-      },
-      switch(video) {
-        this.name = video.name
-       
-        this.dp.switchVideo({
-          url: video.playurl
-        })
-        this.play(video)
-        
-      },
-      close() {
-        this.closeNotice()
-        this.dp.pause()
-        //this.dp.destroy()
-        this.$emit("closeVideo")
-      },
-      closeNotice() {
-        this.$Notice.close("video")
-      }
+    switch(video) {
+      this.name = video.name;
+
+      this.dp.switchVideo({
+        url: video.playurl
+      });
+      this.play(video);
+    },
+    close() {
+      this.closeNotice();
+      this.dp.pause();
+      //this.dp.destroy()
+      this.$emit("closeVideo");
+    },
+    closeNotice() {
+      this.$Notice.close("video");
     }
   }
-
+};
 </script>
 <style>
 /* .player-content {
@@ -124,14 +125,13 @@
   left: 0;
   bottom: 0;
   height: 300px;
-  
 }
-@media (max-width: 768px) { 
+@media (max-width: 768px) {
   .dplayer {
     width: 100%;
   }
 }
-@media (min-width: 769px) { 
+@media (min-width: 769px) {
   .dplayer {
     width: 600px;
   }
