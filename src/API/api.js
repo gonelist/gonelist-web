@@ -1,16 +1,16 @@
-import request from "../utils/request"
+import request from "../utils/request";
 
-export function getAllFiles(baseURL, path, pass="") {
+export function getAllFiles(baseURL, path, pass = "") {
   return request({
     method: "get",
     url: `${baseURL}/onedrive/getpath`,
     params: {
-      path: path || '/'
+      path: path || "/"
     },
     headers: {
-      "pass": pass
+      pass: pass
     }
-  })
+  });
   // console.log("pass = ", pass)
   // if(pass == "") {
   //   console.log("无密码")
@@ -34,23 +34,22 @@ export function getAllFiles(baseURL, path, pass="") {
   //     }
   //   })
   // }
-  
 }
 export function logout(baseURL) {
   return request({
     method: "get",
     url: `${baseURL}/cancelLogin`
-  })
+  });
 }
-export function getReadme(baseURL, path, pass="") {
+export function getReadme(baseURL, path, pass = "") {
   return request({
     method: "get",
     url: `${baseURL}/README`,
     params: {
-      path: path || '/'
+      path: path || "/"
     },
     headers: {
-      "pass": pass
+      pass: pass
     }
-  })
+  });
 }
