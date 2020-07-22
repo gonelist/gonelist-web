@@ -225,6 +225,8 @@
     <Modal v-model="img_modal" title="图片预览" :footer-hide="true">
       <img :src="img_src" alt="" style="width:100%;height:100%" />
     </Modal>
+
+    <M-Footer></M-Footer>
   </div>
 </template>
 
@@ -233,12 +235,14 @@ import { getAllFiles, logout, getReadme } from "../API/api";
 import { checkFileType } from "../utils/index";
 import DPlayer from "../components/Dplayer";
 import APlayer from "../components/Aplayer";
+import Footer from "../components/Footer";
 
 export default {
   name: "Index",
   components: {
     "D-Player": DPlayer,
-    "A-Player": APlayer
+    "A-Player": APlayer,
+    "M-Footer": Footer
   },
   data() {
     return {
