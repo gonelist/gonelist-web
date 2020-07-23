@@ -234,6 +234,9 @@
 .markdown-body code {
   border-radius: 3px;
 }
+.markdown-body img {
+  max-width: 100%;
+}
   .card-header {
     padding: 8px 0;
     margin: -1px -1px 0;
