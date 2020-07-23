@@ -55,7 +55,7 @@
                   path.length === 1 ? href + row.name : href + '/' + row.name
                 "
                 v-if="row.is_folder"
-                @click.prevent="nextFile(index)"
+                @click.prevent="nextFile(index, row.name)"
               >
                 <span class="file-icon"
                   ><i class="fa fa-folder-open" aria-hidden="true"></i>
@@ -447,11 +447,12 @@ export default {
         //console.log(this.readme)
       });
     },
-    nextFile(index) {
+    nextFile(index, name) {
+      console.log(name);
       if (this.path.length === 1) {
-        this.hash = this.hash + this.files.children[index].name;
+        this.hash = this.hash + name;
       } else {
-        this.hash = this.hash + "/" + this.files.children[index].name;
+        this.hash = this.hash + "/" + name;
       }
 
       window.location.hash = this.hash;
