@@ -1,10 +1,14 @@
 ## GONEList-Web
 
+<img align="right" width="240" src="https://gonelist-doc.cugxuan.cn/img/logo/logo.png">
+
 这是一款使用 golang + vue 编写的基于 onedrive 的在线共享网盘
 
 效果展示：https://gonelist.cugxuan.cn
 
 后端项目地址：https://github.com/cugxuan/gonelist
+
+详细文档地址：https://gonelist-doc.cugxuan.cn
 
 有问题请提 issue，也可以进入 QQ 群交流，群号：1083165608
 
