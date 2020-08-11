@@ -3,7 +3,7 @@ export function checkFileType(name) {
   name = name.toLowerCase();
   if (/\.(mkv|mp4|webm|avi|mpg|mpeg|rm|rmvb|mov|wmv|asf|ts|flv)$/.test(name)) {
     type = "video";
-  } else if (/\.(wav|mp3|ogg|acc|webm|m4a)$/.test(name)) {
+  } else if (/\.(wav|mp3|ogg|acc|webm|m4a|flac)$/.test(name)) {
     type = "audio";
   } else if (/\.(rar|zip)$/.test(name)) {
     type = "archive";
