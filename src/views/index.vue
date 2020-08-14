@@ -364,7 +364,7 @@ export default {
       if (!keywords) {
         return files;
       } else {
-        return files.filter(item => reg.test(item.name));
+        return files.filter(item => reg.test(item.name.toLowerCase()));
       }
     }
   },
@@ -491,7 +491,7 @@ export default {
       }
     },
     search() {
-      this.reg = new RegExp(this.keywords);
+      this.reg = new RegExp(this.keywords.toLowerCase());
     },
     exit() {
       logout(this.baseURL).then(() => {

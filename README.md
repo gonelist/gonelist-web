@@ -26,7 +26,6 @@
 
 视频播放库 [DPlayer](http://dplayer.js.org/)
 
-
 音频播放库 [APlayer](https://aplayer.js.org/)
 
 ## 注意事项
@@ -43,24 +42,26 @@
 
 - 当使用 pages 选项构建多页面应用时。
 
-
 同样关于vue-router hash模式与history模式可以参考[官方文档](https://router.vuejs.org/zh/guide/essentials/history-mode.html#%E5%90%8E%E7%AB%AF%E9%85%8D%E7%BD%AE%E4%BE%8B%E5%AD%90)
 
 ## Project setup
-```
+
+```linux
 yarn install
 ```
 
 ### Compiles and hot-reloads for development
-```
+
+```linux
 yarn serve
 ```
 
 ### Compiles and minifies for production
-```
+
+```linux
 yarn build
 ```
 
 ### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
 
+See [Configuration Reference](https://cli.vuejs.org/config/).
