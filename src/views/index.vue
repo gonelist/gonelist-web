@@ -16,7 +16,7 @@
                 @click="toPath(index)"
               >
                 <span>{{ item === "/" ? "root" : item }}</span>
-                <span style="padding-left:5px" v-if="item || item !== '/'"
+                <span style="padding-left: 5px" v-if="item || item !== '/'"
                   >/
                 </span>
               </span>
@@ -30,12 +30,15 @@
           </div>
 
           <div class="search-container">
-            <input
-              id="search"
+            <Input
               v-model="keywords"
               placeholder="Search"
-              @keyup="search()"
+              @keyup.native="search"
             />
+            <!-- <Select v-model="serach_type" slot="prepend" style="width: 150px">
+              <Option value="cur">当前文件夹搜索</Option>
+              <Option value="all">全局搜索</Option>
+            </Select> -->
           </div>
         </div>
 
@@ -200,9 +203,7 @@
             d="M3 5h4v1H3V5zm0 3h4V7H3v1zm0 2h4V9H3v1zm11-5h-4v1h4V5zm0 2h-4v1h4V7zm0 2h-4v1h4V9zm2-6v9c0 .55-.45 1-1 1H9.5l-1 1-1-1H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1h5.5l1 1 1-1H15c.55 0 1 .45 1 1zm-8 .5L7.5 3H2v9h6V3.5zm7-.5H9.5l-.5.5V12h6V3z"
           ></path>
         </svg>
-        <h3>
-          README.md
-        </h3>
+        <h3>README.md</h3>
       </div>
       <div class="markdown-body" v-html="readme"></div>
     </div>
@@ -219,11 +220,16 @@
     ></A-Player>
 
     <Modal v-model="modal" title="加密文件" @on-ok="ok" @on-cancel="cancel">
-      <Input v-model="pass" type="password" placeholder="请输入密码" />
+      <Input
+        v-model="pass"
+        type="password"
+        placeholder="请输入密码"
+        @keyup.enter.native="ok"
+      />
       <p style="color: red" v-show="pass_count > 1">密码错误!</p>
     </Modal>
     <Modal v-model="img_modal" title="图片预览" :footer-hide="true">
-      <img :src="img_src" alt="" style="width:100%;height:100%" />
+      <img :src="img_src" alt="" style="width: 100%; height: 100%" />
     </Modal>
 
     <M-Footer></M-Footer>
@@ -231,6 +237,7 @@
 </template>
 
 <script>
+// import { getAllFiles, logout, getReadme, searchAll } from "../API/api";
 import { getAllFiles, logout, getReadme } from "../API/api";
 import { checkFileType } from "../utils/index";
 import DPlayer from "../components/Dplayer";
@@ -246,12 +253,13 @@ export default {
   },
   data() {
     return {
-      header: [
+      header: [],
+      headerCopy: [
         {
           title: "文件",
           slot: "name",
           key: "is_folder",
-          minWidth: 400,
+          // minWidth: 400,
           sortable: true,
           sortType: "desc",
           sortMethod: (a, b, type) => {
@@ -267,7 +275,7 @@ export default {
           slot: "last_modify_time",
           key: "last_modify_time",
           align: "right",
-          width: 200,
+          // width: 200,
           sortable: true,
           //desc倒序 asc顺序
           sortMethod: (a, b, type) => {
@@ -283,7 +291,7 @@ export default {
           slot: "size",
           key: "size",
           align: "right",
-          width: 100,
+          // width: 100,
           sortable: true,
           //desc倒序升序 asc顺序降序
           sortMethod: (a, b, type) => {
@@ -295,7 +303,7 @@ export default {
         {
           title: " ",
           slot: "action",
-          width: 100,
+          width: 50,
           align: "center"
         }
       ],
@@ -303,6 +311,7 @@ export default {
       files: [],
       path: [],
       keywords: "",
+      serach_type: "cur",
       reg: /""/,
       hash: "",
       // origin + parh + hash
@@ -329,7 +338,13 @@ export default {
       img_src: ""
     };
   },
+  mounted() {
+    window.onresize = () => {
+      this.checkWidth();
+    };
+  },
   created() {
+    this.checkWidth();
     this.init();
   },
   watch: {
@@ -361,11 +376,9 @@ export default {
       return result;
     },
     filterData(files, reg, keywords) {
-      if (!keywords) {
-        return files;
-      } else {
-        return files.filter(item => reg.test(item.name.toLowerCase()));
-      }
+      return keywords
+        ? files.filter(item => reg.test(item.name.toLowerCase()))
+        : files;
     }
   },
   methods: {
@@ -449,11 +462,13 @@ export default {
     },
     nextFile(index, name) {
       console.log(name);
-      if (this.path.length === 1) {
-        this.hash = this.hash + name;
-      } else {
-        this.hash = this.hash + "/" + name;
-      }
+      // if (this.path.length === 1) {
+      //   this.hash = this.hash + name;
+      // } else {
+      //   this.hash = this.hash + "/" + name;
+      // }
+      this.hash =
+        this.path.length === 1 ? this.hash + name : this.hash + "/" + name;
 
       window.location.hash = this.hash;
     },
@@ -492,6 +507,14 @@ export default {
     },
     search() {
       this.reg = new RegExp(this.keywords.toLowerCase());
+      // if(this.serach_type == "cur") {
+      //   this.reg = new RegExp(this.keywords.toLowerCase());
+      // } else {
+      //   searchAll(this.baseURL, this.keywords).then(res => {
+      //     console.log(res.data);
+      //     this.files = res.data;
+      //   })
+      // }
     },
     exit() {
       logout(this.baseURL).then(() => {
@@ -576,6 +599,7 @@ export default {
       return checkFileType(name);
     },
     ok() {
+      this.modal = false;
       this.init();
     },
     cancel() {
@@ -586,6 +610,26 @@ export default {
     showImage(url, _index) {
       this.img_modal = true;
       this.img_src = url;
+    },
+    checkWidth() {
+      this.clientHeight = `${document.documentElement.clientWidth}`;
+      //console.log(this.clientHeight);
+      if (this.clientHeight < 801) {
+        this.header = this.headerCopy.filter(item => item.title != "时间");
+      } else {
+        this.header = this.headerCopy.map(item => {
+          if (item.slot == "name") {
+            item.minWidth = 400;
+          } else if (item.slot == "last_modify_time") {
+            item.width = 200;
+          } else if (item.slot == "size") {
+            item.width = 100;
+          } else {
+            item.width = 100;
+          }
+          return item;
+        });
+      }
     }
   }
 };

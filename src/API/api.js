@@ -11,29 +11,6 @@ export function getAllFiles(baseURL, path, pass = "") {
       pass: pass
     }
   });
-  // console.log("pass = ", pass)
-  // if(pass == "") {
-  //   console.log("无密码")
-  //   return request({
-  //     method: "get",
-  //     url: `${baseURL}/onedrive/getpath`,
-  //     params: {
-  //       path: path || '/'
-  //     }
-  //   })
-  // } else {
-  //   console.log("有密码")
-  //   return request({
-  //     method: "get",
-  //     url: `${baseURL}/onedrive/getpath`,
-  //     params: {
-  //       path: path || '/'
-  //     },
-  //     headers: {
-  //       "pass": pass
-  //     }
-  //   })
-  // }
 }
 export function logout(baseURL) {
   return request({
@@ -50,6 +27,15 @@ export function getReadme(baseURL, path, pass = "") {
     },
     headers: {
       pass: pass
+    }
+  });
+}
+export function searchAll(baseURL, key) {
+  return request({
+    method: "get",
+    url: `${baseURL}/onedrive/search`,
+    params: {
+      key
     }
   });
 }

@@ -5,13 +5,24 @@ import store from "./store";
 import axios from "axios";
 import "font-awesome/css/font-awesome.min.css";
 
-import { Message, Table, Notice, Icon, Modal, Input } from "view-design";
+import {
+  Message,
+  Table,
+  Notice,
+  Icon,
+  Modal,
+  Input,
+  Select,
+  Option
+} from "view-design";
 Vue.prototype.$Message = Message;
 Vue.prototype.$Notice = Notice;
 Vue.component("Table", Table);
 Vue.component("Icon", Icon);
 Vue.component("Input", Input);
 Vue.component("Modal", Modal);
+Vue.component("Select", Select);
+Vue.component("Option", Option);
 Vue.config.productionTip = false;
 
 if (process.env.NODE_ENV === "production") {
