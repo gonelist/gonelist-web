@@ -580,7 +580,7 @@ export default {
       const paths = end.split("/");
       paths.pop();
       const path = paths.join("/");
-      location.href = (this.href + path).replaceAll("//", "/");
+      location.href = location.origin + "#" + path.replaceAll("//", "/");
     },
     switchSearchGlobal(status) {
       this.search_global = status;
@@ -684,14 +684,14 @@ export default {
       this.clientHeight = `${document.documentElement.clientWidth}`;
       //console.log(this.clientHeight);
       if (this.clientHeight < 801) {
-        this.header = this.headerCopy.filter(item => item.title != "时间");
+        this.header = this.headerCopy.filter(item => item.title !== "时间");
       } else {
         this.header = this.headerCopy.map(item => {
-          if (item.slot == "name") {
+          if (item.slot === "name") {
             item.minWidth = 400;
-          } else if (item.slot == "last_modify_time") {
+          } else if (item.slot === "last_modify_time") {
             item.width = 200;
-          } else if (item.slot == "size") {
+          } else if (item.slot === "size") {
             item.width = 100;
           } else {
             item.width = 100;
