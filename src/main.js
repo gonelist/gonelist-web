@@ -13,8 +13,12 @@ import {
   Modal,
   Input,
   Select,
-  Option
+  Option,
+  ButtonGroup,
+  Button,
+  AutoComplete
 } from "view-design";
+
 Vue.prototype.$Message = Message;
 Vue.prototype.$Notice = Notice;
 Vue.component("Table", Table);
@@ -23,6 +27,9 @@ Vue.component("Input", Input);
 Vue.component("Modal", Modal);
 Vue.component("Select", Select);
 Vue.component("Option", Option);
+Vue.component("ButtonGroup", ButtonGroup);
+Vue.component("Button", Button);
+Vue.component("AutoComplete", AutoComplete);
 Vue.config.productionTip = false;
 
 if (process.env.NODE_ENV === "production") {

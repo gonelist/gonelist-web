@@ -99,6 +99,15 @@ h3 > span > span:first-child:hover {
     z-index: 9;
 }
 
+.search-container {
+    display: flex;
+}
+
+.search-container .search-input {
+    flex: 1;
+    margin-left: 12px;
+}
+
 .header-container {
     margin: 0;
     border: 0 none;
@@ -136,13 +145,17 @@ h3 > span > span:first-child:hover {
     height: 36px;
 }
 
-.ivu-table a {
-    display: inline-block;
-    width: 100%;
+.ivu-table-row:hover a {
+    font-weight: 500;
 }
 
-.ivu-table a:hover {
-    font-weight: bolder;
+.ivu-table-row a {
+    display: inline-block;
+    width: 100%;
+    line-height: 1.2em;
+    font-size: 1em;
+    letter-spacing: .5px;
+    transition: all 350ms ease-in-out;
 }
 
 .ivu-table th {

@@ -12,8 +12,14 @@ service.interceptors.response.use(
     return res;
   },
   error => {
+    if ("message" in error) {
+      if (error.message === "cancel_request_error") {
+        return Promise.reject(error);
+      }
+    }
+
     Vue.prototype.$Message.error("请求失败");
-    console.log("err" + error); // for debug
+    console.log("err", error);
   }
 );
 export default service;
