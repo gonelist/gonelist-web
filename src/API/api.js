@@ -12,12 +12,14 @@ export function getAllFiles(baseURL, path, pass = "") {
     }
   });
 }
+
 export function logout(baseURL) {
   return request({
     method: "get",
     url: `${baseURL}/cancelLogin`
   });
 }
+
 export function getReadme(baseURL, path, pass = "") {
   return request({
     method: "get",
@@ -30,6 +32,7 @@ export function getReadme(baseURL, path, pass = "") {
     }
   });
 }
+
 export function searchAll(baseURL, key) {
   return request({
     method: "get",
