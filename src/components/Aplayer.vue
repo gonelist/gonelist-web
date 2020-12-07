@@ -83,16 +83,19 @@ export default {
   left: 0;
   bottom: 0;
 }
+
 @media (max-width: 768px) {
   .aplayer {
     width: 100%;
   }
 }
+
 @media (min-width: 769px) {
   .aplayer {
     width: 400px;
   }
 }
+
 /* .player-content {
   position: fixed;
   top: 0;

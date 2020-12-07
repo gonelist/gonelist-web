@@ -12,12 +12,14 @@ export function getAllFiles(baseURL, path, pass = "") {
     }
   });
 }
+
 export function logout(baseURL) {
   return request({
     method: "get",
     url: `${baseURL}/cancelLogin`
   });
 }
+
 export function getReadme(baseURL, path, pass = "") {
   return request({
     method: "get",
@@ -30,12 +32,14 @@ export function getReadme(baseURL, path, pass = "") {
     }
   });
 }
-export function searchAll(baseURL, key) {
+
+export function searchAll(baseURL, key, token) {
   return request({
     method: "get",
     url: `${baseURL}/onedrive/search`,
     params: {
       key
-    }
+    },
+    cancelToken: token
   });
 }

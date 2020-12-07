@@ -20,6 +20,7 @@ export default {
 #footer {
   margin: 20px 0;
   text-align: center;
+
   a {
     text-decoration: none;
     border-bottom: 1px solid #999;

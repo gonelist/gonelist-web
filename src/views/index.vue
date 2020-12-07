@@ -9,16 +9,18 @@
         <div class="header-container">
           <div class="title-icon">
             <h3>
-              <span><i class="fa fa-home" aria-hidden="true"></i> </span>
+              <span style="margin-right: 12px"
+                ><i class="fa fa-home" aria-hidden="true"></i>
+              </span>
               <span
                 v-for="(item, index) in path"
                 :key="item"
                 @click="toPath(index)"
               >
                 <span>{{ item === "/" ? "root" : item }}</span>
-                <span style="padding-left: 5px" v-if="item || item !== '/'"
-                  >/
-                </span>
+                <span style="padding: 0 4px;" v-if="item || item !== '/'"
+                  >/</span
+                >
               </span>
             </h3>
             <Icon
@@ -30,15 +32,47 @@
           </div>
 
           <div class="search-container">
-            <Input
+            <ButtonGroup class="search-type">
+              <Button
+                :type="search_global ? 'primary' : 'default'"
+                @click="switchSearchGlobal(true)"
+                >全局
+              </Button>
+              <Button
+                :type="!search_global ? 'primary' : 'default'"
+                @click="switchSearchGlobal(false)"
+                >本地
+              </Button>
+            </ButtonGroup>
+
+            <AutoComplete
+              class="search-input"
+              v-if="search_global"
               v-model="keywords"
-              placeholder="Search"
               @keyup.native="search"
+              @on-select="redirectSearch"
+            >
+              <Option
+                v-for="(option, index) in search_ends"
+                :value="option.path"
+                :key="index"
+              >
+                <span class="demo-auto-complete-title">
+                  <i class="fa fa-folder" v-if="option.isfloder"></i>
+                  <i class="fa fa-file" v-else></i>
+                  {{ option.path }}
+                </span>
+              </Option>
+            </AutoComplete>
+            <Input
+              v-else
+              search
+              class="search-input"
+              v-model="keywords"
+              placeholder="搜索"
+              @keyup.native="search"
+              :key="'input-search'"
             />
-            <!-- <Select v-model="serach_type" slot="prepend" style="width: 150px">
-              <Option value="cur">当前文件夹搜索</Option>
-              <Option value="all">全局搜索</Option>
-            </Select> -->
           </div>
         </div>
 
@@ -47,7 +81,7 @@
             :loading="loading"
             no-data-text="暂无文件"
             :columns="header"
-            :data="files.children | filterData(reg, keywords)"
+            :data="files.children | filterData(search_global, reg, keywords)"
           >
             <template slot-scope="{ row, index }" slot="name">
               <a
@@ -60,8 +94,8 @@
                 v-if="row.is_folder"
                 @click.prevent="nextFile(index, row.name)"
               >
-                <span class="file-icon"
-                  ><i class="fa fa-folder-open" aria-hidden="true"></i>
+                <span class="file-icon">
+                  <i class="fa fa-folder-open" aria-hidden="true"></i>
                 </span>
                 <span>{{ row.name }}</span>
               </a>
@@ -85,7 +119,7 @@
               {{ row.last_modify_time | formatTime }}
             </template>
             <template slot-scope="{ row }" slot="size">
-              {{ row.size | formatSize }}
+              <div style="width: max-content">{{ row.size | formatSize }}</div>
             </template>
             <template slot-scope="{ row, index }" slot="action">
               <!-- 生产环境 -->
@@ -237,12 +271,15 @@
 </template>
 
 <script>
-// import { getAllFiles, logout, getReadme, searchAll } from "../API/api";
-import { getAllFiles, logout, getReadme } from "../API/api";
+import axios from "axios";
+import { getAllFiles, logout, getReadme, searchAll } from "@/API/api";
 import { checkFileType } from "../utils/index";
 import DPlayer from "../components/Dplayer";
 import APlayer from "../components/Aplayer";
 import Footer from "../components/Footer";
+
+let cancel;
+let CancelToken;
 
 export default {
   name: "Index",
@@ -311,7 +348,9 @@ export default {
       files: [],
       path: [],
       keywords: "",
-      serach_type: "cur",
+      search_global: false,
+      search_ends: [],
+      search_global_data: [],
       reg: /""/,
       hash: "",
       // origin + parh + hash
@@ -339,6 +378,7 @@ export default {
     };
   },
   mounted() {
+    CancelToken = axios.CancelToken;
     window.onresize = () => {
       this.checkWidth();
     };
@@ -375,7 +415,8 @@ export default {
       }
       return result;
     },
-    filterData(files, reg, keywords) {
+    filterData(files, search_global, reg, keywords) {
+      if (search_global) return files;
       return keywords
         ? files.filter(item => reg.test(item.name.toLowerCase()))
         : files;
@@ -505,16 +546,44 @@ export default {
         this.$Message.warning("已在该目录");
       }
     },
+    search_global_fun() {
+      if (cancel) {
+        cancel("cancel_request_error");
+      }
+
+      const cancel_token = new CancelToken(function executor(c) {
+        cancel = c;
+      });
+
+      if (this.keywords.length === 0) {
+        return;
+      }
+
+      searchAll(this.baseurl, this.keywords, cancel_token)
+        .then(response => {
+          this.search_ends = response.data;
+        })
+        .catch(thrown => {
+          if (!axios.isCancel(thrown)) {
+            this.$Message.error("[SGE] 请求错误，请检查后端");
+          }
+        });
+    },
     search() {
-      this.reg = new RegExp(this.keywords.toLowerCase());
-      // if(this.serach_type == "cur") {
-      //   this.reg = new RegExp(this.keywords.toLowerCase());
-      // } else {
-      //   searchAll(this.baseURL, this.keywords).then(res => {
-      //     console.log(res.data);
-      //     this.files = res.data;
-      //   })
-      // }
+      if (this.search_global) {
+        this.search_global_fun();
+      } else {
+        this.reg = new RegExp(this.keywords.toLowerCase());
+      }
+    },
+    redirectSearch(end) {
+      const paths = end.split("/");
+      paths.pop();
+      const path = paths.join("/");
+      location.href = location.origin + "#" + path.replaceAll("//", "/");
+    },
+    switchSearchGlobal(status) {
+      this.search_global = status;
     },
     exit() {
       logout(this.baseURL).then(() => {
@@ -615,14 +684,14 @@ export default {
       this.clientHeight = `${document.documentElement.clientWidth}`;
       //console.log(this.clientHeight);
       if (this.clientHeight < 801) {
-        this.header = this.headerCopy.filter(item => item.title != "时间");
+        this.header = this.headerCopy.filter(item => item.title !== "时间");
       } else {
         this.header = this.headerCopy.map(item => {
-          if (item.slot == "name") {
+          if (item.slot === "name") {
             item.minWidth = 400;
-          } else if (item.slot == "last_modify_time") {
+          } else if (item.slot === "last_modify_time") {
             item.width = 200;
-          } else if (item.slot == "size") {
+          } else if (item.slot === "size") {
             item.width = 100;
           } else {
             item.width = 100;
