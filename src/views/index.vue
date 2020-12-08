@@ -41,7 +41,7 @@
               <Button
                 :type="!search_global ? 'primary' : 'default'"
                 @click="switchSearchGlobal(false)"
-                >本地
+                >当前
               </Button>
             </ButtonGroup>
 
@@ -581,6 +581,9 @@ export default {
       paths.pop();
       const path = paths.join("/");
       location.href = location.origin + "#" + path.replaceAll("//", "/");
+      // window.open(location.origin + "#" + path.replaceAll("//", "/")+'?time='+(new Date()).getTime(),'_self');
+      // location.href = location.origin + "#" + path.replaceAll("//", "/") + '?time='+((new Date()).getTime());
+      // window.location.href = loca+'?time='+((new Date()).getTime());
     },
     switchSearchGlobal(status) {
       this.search_global = status;
