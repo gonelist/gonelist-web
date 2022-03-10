@@ -426,6 +426,14 @@ export default {
   methods: {
     // 文件上传
     upload() {
+      let secret = window.localStorage.getItem("gonelist_secret");
+      if (!secret) {
+        secret = window.prompt("请输入你的上传密钥：", "");
+        if (!secret) {
+          return;
+        }
+        window.localStorage.setItem("gonelist_secret", secret);
+      }
       let tempDom = document.createElement("input");
       tempDom.value = "选择文件";
       tempDom.type = "file";
@@ -448,10 +456,18 @@ export default {
           param,
           body,
           this.pass,
-          e.target.files[0].name
+          e.target.files[0].name,
+          secret
         ).then(res => {
-          console.log(res);
-          this.init();
+          // 判断是否secret错误
+          if (res.code === 10009) {
+            this.$Message.error(" upload secret 错误");
+            // 如果判断secret错误就将存起来的secret删掉
+            window.localStorage.removeItem("gonelist_secret");
+          } else if (res.code === 200) {
+            this.init();
+          }
+          // this.init();
         });
       };
       tempDom.click();
@@ -665,10 +681,10 @@ export default {
     playAudio(playUrl, index) {
       console.log(playUrl);
       let audio = {
-        artist: this.files.children[index].name.split("-")[0],
-        name: this.files.children[index].name.split("-")[1],
+        artist: this.files[index].name.split("-")[0],
+        name: this.files[index].name.split("-")[1],
         url: playUrl,
-        fullName: this.files.children[index].name
+        fullName: this.files[index].name
       };
       if (!this.audio.show) {
         this.audio.index = index;

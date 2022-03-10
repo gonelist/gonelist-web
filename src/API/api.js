@@ -1,12 +1,20 @@
 import request from "../utils/request";
 
-export function Upload(baseURL, path, body, pass = "", name = "test") {
+export function Upload(
+  baseURL,
+  path,
+  body,
+  pass = "",
+  name = "test",
+  secret = ""
+) {
   return request({
     method: "post",
     url: `${baseURL}/onedrive/upload`,
     params: {
       path: path || "/",
-      file_name: name
+      file_name: name,
+      secret: secret
     },
     data: body,
     headers: {
