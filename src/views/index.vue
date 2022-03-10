@@ -73,6 +73,7 @@
               @keyup.native="search"
               :key="'input-search'"
             />
+            <Button type="info" @click="upload">文件上传 </Button>
           </div>
         </div>
 
@@ -81,7 +82,7 @@
             :loading="loading"
             no-data-text="暂无文件"
             :columns="header"
-            :data="files.children | filterData(search_global, reg, keywords)"
+            :data="files | filterData(search_global, reg, keywords)"
           >
             <template slot-scope="{ row, index }" slot="name">
               <a
@@ -174,7 +175,7 @@
                 <span
                   class="play"
                   v-if="checkFile(row.name) === 'video'"
-                  @click="playVideo(row.download_url, index)"
+                  @click="playVideo(baseurl + 'd' + row.path, index)"
                 >
                   <i
                     class="fa fa-stop"
@@ -192,7 +193,7 @@
                 <span
                   class="play"
                   v-else-if="checkFile(row.name) === 'audio'"
-                  @click="playAudio(row.download_url, index)"
+                  @click="playAudio(baseurl + 'd' + row.path, index)"
                 >
                   <i
                     class="fa fa-stop"
@@ -211,7 +212,7 @@
                   class="play"
                   title="预览"
                   v-else-if="checkFile(row.name) === 'image'"
-                  @click="showImage(row.download_url, index)"
+                  @click="showImage(baseurl + 'd' + row.path, index)"
                 >
                   <i class="fa fa-eye" aria-hidden="true"></i>
                 </span>
@@ -272,7 +273,7 @@
 
 <script>
 import axios from "axios";
-import { getAllFiles, logout, getReadme, searchAll } from "@/API/api";
+import { getAllFiles, logout, getReadme, searchAll, Upload } from "@/API/api";
 import { checkFileType } from "../utils/index";
 import DPlayer from "../components/Dplayer";
 import APlayer from "../components/Aplayer";
@@ -423,6 +424,54 @@ export default {
     }
   },
   methods: {
+    // 文件上传
+    upload() {
+      let secret = window.localStorage.getItem("gonelist_secret");
+      if (!secret) {
+        secret = window.prompt("请输入你的上传密钥：", "");
+        if (!secret) {
+          return;
+        }
+        window.localStorage.setItem("gonelist_secret", secret);
+      }
+      let tempDom = document.createElement("input");
+      tempDom.value = "选择文件";
+      tempDom.type = "file";
+      tempDom.onchange = e => {
+        let param = decodeURIComponent(window.location.hash);
+        if (param[param.length - 1] === "/") {
+          param = param.slice(1, -1);
+        } else {
+          param = param.slice(1);
+        }
+        console.log(e.target.files[0]);
+        if (e.target.files[0].size >= 4194304) {
+          this.$Message.error("当前仅支持文件小于4Mb");
+          return;
+        }
+        let body = new FormData();
+        body.append("file", e.target.files[0]);
+        Upload(
+          this.baseURL,
+          param,
+          body,
+          this.pass,
+          e.target.files[0].name,
+          secret
+        ).then(res => {
+          // 判断是否secret错误
+          if (res.code === 10009) {
+            this.$Message.error(" upload secret 错误");
+            // 如果判断secret错误就将存起来的secret删掉
+            window.localStorage.removeItem("gonelist_secret");
+          } else if (res.code === 200) {
+            this.init();
+          }
+          // this.init();
+        });
+      };
+      tempDom.click();
+    },
     init() {
       this.keywords = "";
       this.hash = decodeURIComponent(window.location.hash);
@@ -482,18 +531,21 @@ export default {
           this.modal = true;
         } else {
           this.files = res.data;
-          if (!this.files.children) {
-            this.files.children = [];
-          } else {
-            // 如果匹配到文件夹就直接下载
-            if (!this.files.is_folder) {
-              this.files.children = [];
-              this.files.children.push(this.files);
-              console.log("下载", this.files.download_url);
-              //window.open(this.files.download_url, "_blank")
-              window.location.href = this.files.download_url;
-            }
-          }
+          console.log(this.files.children);
+          // this.files.chirden = [];
+          // this.files.children.push(...this.files);
+          // if (!this.files.children) {
+          //   this.files.children = [];
+          // } else {
+          //   // 如果匹配到文件夹就直接下载
+          //   if (!this.files.is_folder) {
+          //     this.files.children = [];
+          //     this.files.children.push(this.files);
+          //     console.log("下载", this.files.download_url);
+          //     //window.open(this.files.download_url, "_blank")
+          //     // window.location.href = this.files.download_url;
+          //   }
+          // }
         }
       });
       getReadme(this.baseURL, param, this.pass).then(res => {
@@ -508,6 +560,7 @@ export default {
       // } else {
       //   this.hash = this.hash + "/" + name;
       // }
+      console.log("path==>" + this.path);
       this.hash =
         this.path.length === 1 ? this.hash + name : this.hash + "/" + name;
 
@@ -594,11 +647,10 @@ export default {
       });
     },
     playVideo(playUrl, index) {
-      // 如果没有正在播放的视频
       console.log(playUrl);
       let video = {
         playUrl: playUrl,
-        name: this.files.children[index].name
+        name: this.files[index].name
       };
       if (!this.video.show) {
         this.video.index = index;
@@ -627,11 +679,12 @@ export default {
       }
     },
     playAudio(playUrl, index) {
+      console.log(playUrl);
       let audio = {
-        artist: this.files.children[index].name.split("-")[0],
-        name: this.files.children[index].name.split("-")[1],
+        artist: this.files[index].name.split("-")[0],
+        name: this.files[index].name.split("-")[1],
         url: playUrl,
-        fullName: this.files.children[index].name
+        fullName: this.files[index].name
       };
       if (!this.audio.show) {
         this.audio.index = index;
