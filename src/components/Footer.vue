@@ -6,9 +6,7 @@
       | Theme —
       <a href="https://github.com/Sillywa/gonelist-web">GONEList-web</a>
       | Version
-      <a :href="versionUrl"
-        >GONEList <b>{{ version }}</b></a
-      >
+      <a :href="versionUrl">{{ version }}</a>
     </span>
   </div>
 </template>
