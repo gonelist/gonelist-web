@@ -1,7 +1,7 @@
 <template>
   <div class="content">
     <div class="title">
-      <h1>GONEList</h1>
+      <h1>{{ site_config.name }}</h1>
     </div>
 
     <div class="list-wrapper">
@@ -73,7 +73,13 @@
               @keyup.native="search"
               :key="'input-search'"
             />
-            <Button type="info" @click="upload">文件上传 </Button>
+            <Button
+              v-if="site_config.upload"
+              class="file-upload"
+              type="info"
+              @click="upload"
+              >文件上传
+            </Button>
           </div>
         </div>
 
@@ -267,13 +273,20 @@
       <img :src="img_src" alt="" style="width: 100%; height: 100%" />
     </Modal>
 
-    <M-Footer></M-Footer>
+    <M-Footer :version="site_config.version"></M-Footer>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import { getAllFiles, logout, getReadme, searchAll, Upload } from "@/API/api";
+import {
+  getAllFiles,
+  getConfig,
+  getReadme,
+  logout,
+  searchAll,
+  Upload
+} from "@/API/api";
 import { checkFileType } from "../utils/index";
 import DPlayer from "../components/Dplayer";
 import APlayer from "../components/Aplayer";
@@ -375,7 +388,14 @@ export default {
       pass: "",
       pass_count: 0,
       img_modal: false,
-      img_src: ""
+      img_src: "",
+      site_config: {
+        load: false,
+        name: "GONEList",
+        page_title: "GONEList",
+        upload: false,
+        version: "v0.0.0"
+      }
     };
   },
   mounted() {
@@ -395,6 +415,22 @@ export default {
       },
       // 深度观察监听
       deep: true
+    },
+    path: {
+      handler: function(newValue) {
+        const cleanPaths = newValue.filter(i => i !== "/");
+        if (cleanPaths.length) {
+          const lastName = cleanPaths.slice(-1)[0];
+          const cleanPath = "/" + cleanPaths.join("/");
+          if (cleanPaths.length > 1) {
+            document.title = `${lastName} - ${cleanPath} - ${this.site_config.page_title}`;
+          } else {
+            document.title = `${lastName} - ${this.site_config.page_title}`;
+          }
+        } else {
+          document.title = this.site_config.page_title;
+        }
+      }
     }
   },
   filters: {
@@ -472,6 +508,24 @@ export default {
       };
       tempDom.click();
     },
+    loadConfig() {
+      if (!this.site_config.load) {
+        getConfig(this.baseurl)
+          .then(response => {
+            if (response.code === 200) {
+              const data = response.data;
+              this.site_config = Object.assign(this.site_config, data, {
+                load: true
+              });
+              document.title = this.site_config.page_title;
+              console.log(this.site_config);
+            }
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+    },
     init() {
       this.keywords = "";
       this.hash = decodeURIComponent(window.location.hash);
@@ -531,7 +585,7 @@ export default {
           this.modal = true;
         } else {
           this.files = res.data;
-          console.log(this.files.children);
+          // console.log(this.files.children);
           // this.files.chirden = [];
           // this.files.children.push(...this.files);
           // if (!this.files.children) {
@@ -552,15 +606,16 @@ export default {
         this.readme = res.data;
         //console.log(this.readme)
       });
+      this.loadConfig();
     },
     nextFile(index, name) {
-      console.log(name);
+      // console.log(name);
       // if (this.path.length === 1) {
       //   this.hash = this.hash + name;
       // } else {
       //   this.hash = this.hash + "/" + name;
       // }
-      console.log("path==>" + this.path);
+      console.log("path ==>" + this.path);
       this.hash =
         this.path.length === 1 ? this.hash + name : this.hash + "/" + name;
 

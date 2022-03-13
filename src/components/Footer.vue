@@ -2,14 +2,27 @@
   <div id="footer">
     <span>
       Powered by
-      <a href="https://github.com/cugxuan/gonelist">GONEList</a> | Theme —
+      <a href="https://github.com/cugxuan/gonelist">GONEList</a>
+      | Theme —
       <a href="https://github.com/Sillywa/gonelist-web">GONEList-web</a>
+      | Version
+      <a :href="versionUrl">{{ version }}</a>
     </span>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    version: String
+  },
+  computed: {
+    versionUrl() {
+      return (
+        "https://github.com/gonelist/gonelist/releases/tag/" + this.version
+      );
+    }
+  },
   data() {
     return {};
   }
