@@ -2,11 +2,13 @@
   <div id="footer">
     <span>
       Powered by
+      <a href="https://github.com/cugxuan/gonelist">GONEList</a>
+      | Theme —
+      <a href="https://github.com/Sillywa/gonelist-web">GONEList-web</a>
+      | Version
       <a :href="versionUrl"
         >GONEList <b>{{ version }}</b></a
       >
-      | Theme —
-      <a href="https://github.com/Sillywa/gonelist-web">GONEList-web</a>
     </span>
   </div>
 </template>
