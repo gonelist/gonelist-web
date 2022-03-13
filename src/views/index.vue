@@ -415,6 +415,22 @@ export default {
       },
       // 深度观察监听
       deep: true
+    },
+    path: {
+      handler: function(newValue) {
+        const cleanPaths = newValue.filter(i => i !== "/");
+        if (cleanPaths.length) {
+          const lastName = cleanPaths.slice(-1)[0];
+          const cleanPath = "/" + cleanPaths.join("/");
+          if (cleanPaths.length > 1) {
+            document.title = `${lastName} - ${cleanPath} - ${this.site_config.page_title}`;
+          } else {
+            document.title = `${lastName} - ${this.site_config.page_title}`;
+          }
+        } else {
+          document.title = this.site_config.page_title;
+        }
+      }
     }
   },
   filters: {
