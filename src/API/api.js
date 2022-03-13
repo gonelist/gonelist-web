@@ -67,3 +67,10 @@ export function searchAll(baseURL, key, token) {
     cancelToken: token
   });
 }
+
+export function getConfig(baseURL) {
+  return request({
+    method: "get",
+    url: `${baseURL}/info`
+  });
+}

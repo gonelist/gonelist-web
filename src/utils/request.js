@@ -7,9 +7,7 @@ const service = axios.create({
 // 添加响应拦截器
 service.interceptors.response.use(
   response => {
-    const res = response.data;
-    console.log(res);
-    return res;
+    return response.data;
   },
   error => {
     if ("message" in error) {
