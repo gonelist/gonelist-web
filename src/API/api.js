@@ -3,9 +3,9 @@ import request from "../utils/request";
 export function Mkdir(baseURL, path, folder_name, secret = "") {
   return request({
     method: "get",
-    url: `${baseURL}/onedrive/delete_file?secret=${secret}&path=${encodeURIComponent(
+    url: `${baseURL}/onedrive/mkdir?secret=${secret}&path=${encodeURIComponent(
       path
-    )}&folde_name=${encodeURIComponent(folder_name)}`
+    )}&folder_name=${encodeURIComponent(folder_name)}`
   });
 }
 

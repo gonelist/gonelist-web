@@ -338,13 +338,13 @@ import {
   searchAll,
   Upload,
   UpdatePermission,
-  DeleteFile
+  DeleteFile,
+  Mkdir
 } from "@/API/api";
 import { checkFileType } from "../utils/index";
 import DPlayer from "../components/Dplayer";
 import APlayer from "../components/Aplayer";
 import Footer from "../components/Footer";
-
 let cancel;
 let CancelToken;
 
@@ -551,8 +551,26 @@ export default {
         }
       });
     },
-    mkdir(path) {
-      console.log(path);
+    mkdir() {
+      let param = decodeURIComponent(window.location.hash);
+      if (param[param.length - 1] === "/") {
+        param = param.slice(1, -1);
+      } else {
+        param = param.slice(1);
+      }
+      let folder_name = window.prompt("请输入文件名：", "");
+      if (folder_name === "") return;
+      Mkdir(
+        this.baseurl,
+        param,
+        folder_name,
+        sessionStorage.getItem("gonelist_secret")
+      ).then(resp => {
+        if (resp.code === 200) {
+          this.$Message.info("文件夹创建成功");
+          this.init();
+        }
+      });
     },
     // 文件上传
     upload() {
