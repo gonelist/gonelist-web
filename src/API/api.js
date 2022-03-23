@@ -1,5 +1,30 @@
 import request from "../utils/request";
 
+export function Mkdir(baseURL, path, folder_name, secret = "") {
+  return request({
+    method: "get",
+    url: `${baseURL}/onedrive/mkdir?secret=${secret}&path=${encodeURIComponent(
+      path
+    )}&folder_name=${encodeURIComponent(folder_name)}`
+  });
+}
+
+export function DeleteFile(baseURL, path, secret = "") {
+  return request({
+    method: "get",
+    url: `${baseURL}/onedrive/delete_file?secret=${secret}&path=${encodeURIComponent(
+      path
+    )}`
+  });
+}
+
+export function UpdatePermission(baseURL, secret = "") {
+  return request({
+    method: "get",
+    url: `${baseURL}/update_permission?secret=${secret}`
+  });
+}
+
 export function Upload(
   baseURL,
   path,
@@ -20,6 +45,11 @@ export function Upload(
     headers: {
       pass: pass,
       "Content-Type": "multipart/form-data"
+    },
+    onUploadProgress: progressEvent => {
+      let complete =
+        (((progressEvent.loaded / progressEvent.total) * 100) | 0) + "%";
+      console.log(complete);
     }
   });
 }
