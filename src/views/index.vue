@@ -273,6 +273,33 @@
                 >
                   <i class="fa fa-eye" aria-hidden="true"></i>
                 </span>
+                <span
+                  class="preview"
+                  title="预览"
+                  v-else-if="
+                    ['powerpoint', 'word', 'excel', 'pdf'].includes(
+                      checkFile(row.name)
+                    )
+                  "
+                  @click="preview(baseurl + 'd' + row.path, index)"
+                >
+                  <svg
+                    x="1648623167521"
+                    class="icon"
+                    viewBox="0 0 1024 1024"
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    p-id="2988"
+                    width="15"
+                    height="15"
+                  >
+                    <path
+                      d="M925.013333 68.266667l-290.133333-68.266667h-10.24L95.573333 204.8c-6.826667 3.413333-10.24 10.24-10.24 17.066667v546.133333c0 6.826667 3.413333 10.24 6.826667 13.653333s10.24 3.413333 17.066667 0l136.533333-68.266666c6.826667-3.413333 10.24-10.24 10.24-13.653334V269.653333l409.6-126.293333V887.466667L105.813333 819.2c-10.24 0-17.066667 3.413333-17.066666 13.653333-3.413333 10.24 3.413333 17.066667 10.24 20.48l546.133333 170.666667H655.36l273.066667-102.4c6.826667-3.413333 10.24-10.24 10.24-17.066667v-819.2c0-6.826667-6.826667-13.653333-13.653334-17.066666z"
+                      fill=""
+                      p-id="2989"
+                    ></path>
+                  </svg>
+                </span>
               </div>
             </template>
           </Table>
@@ -345,6 +372,7 @@ import { checkFileType } from "../utils/index";
 import DPlayer from "../components/Dplayer";
 import APlayer from "../components/Aplayer";
 import Footer from "../components/Footer";
+
 let cancel;
 let CancelToken;
 
@@ -520,6 +548,9 @@ export default {
     }
   },
   methods: {
+    preview(path) {
+      window.open("https://view.officeapps.live.com/op/view.aspx?src=" + path);
+    },
     update_permission() {
       let secret = "";
       secret = window.sessionStorage.getItem("gonelist_secret");

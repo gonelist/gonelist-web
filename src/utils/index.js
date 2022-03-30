@@ -11,7 +11,7 @@ export function checkFileType(name) {
     type = "image";
   } else if (/\.pdf$/.test(name)) {
     type = "pdf";
-  } else if (/\.(excel|xls|csv)$/.test(name)) {
+  } else if (/\.(excel|xls|csv|xlsx)$/.test(name)) {
     type = "excel";
   } else if (/\.(ppt|pptx)$/.test(name)) {
     type = "powerpoint";
