@@ -103,7 +103,7 @@
             :loading="loading"
             no-data-text="暂无文件"
             :columns="header"
-            :data="files | filterData(search_global, reg, keywords)"
+            :data="current_files | filterData(search_global, reg, keywords)"
           >
             <template slot-scope="{ row, index }" slot="name">
               <a
@@ -225,6 +225,33 @@
                 >
                   <i class="fa fa-eye" aria-hidden="true"></i>
                 </span>
+                <span
+                  class="preview"
+                  title="预览"
+                  v-else-if="
+                    ['powerpoint', 'word', 'excel', 'pdf'].includes(
+                      checkFile(row.name)
+                    )
+                  "
+                  @click="preview(baseurl + 'd' + row.path, index)"
+                >
+                  <svg
+                    x="1648623167521"
+                    class="icon"
+                    viewBox="0 0 1024 1024"
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    p-id="2988"
+                    width="15"
+                    height="15"
+                  >
+                    <path
+                      d="M925.013333 68.266667l-290.133333-68.266667h-10.24L95.573333 204.8c-6.826667 3.413333-10.24 10.24-10.24 17.066667v546.133333c0 6.826667 3.413333 10.24 6.826667 13.653333s10.24 3.413333 17.066667 0l136.533333-68.266666c6.826667-3.413333 10.24-10.24 10.24-13.653334V269.653333l409.6-126.293333V887.466667L105.813333 819.2c-10.24 0-17.066667 3.413333-17.066666 13.653333-3.413333 10.24 3.413333 17.066667 10.24 20.48l546.133333 170.666667H655.36l273.066667-102.4c6.826667-3.413333 10.24-10.24 10.24-17.066667v-819.2c0-6.826667-6.826667-13.653333-13.653334-17.066666z"
+                      fill=""
+                      p-id="2989"
+                    ></path>
+                  </svg>
+                </span>
                 <i class="-dedent"></i>
               </div>
               <!-- 开发环境 -->
@@ -304,6 +331,17 @@
             </template>
           </Table>
         </div>
+        <Page
+          v-if="page.total > page.page_size"
+          :styles="{ 'text-align': 'right' }"
+          :total="page.total"
+          :current="page.current"
+          :page-size="page.page_size"
+          :page-size-opts="[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]"
+          show-sizer
+          @on-change="page_change"
+          @on-page-size-change="page_size_change"
+        ></Page>
       </div>
     </div>
 
@@ -347,8 +385,12 @@
       />
       <p style="color: red" v-show="pass_count > 1">密码错误!</p>
     </Modal>
-    <Modal v-model="img_modal" title="图片预览" :footer-hide="true">
+    <Modal v-model="img_modal" title="图片预览">
       <img :src="img_src" alt="" style="width: 100%; height: 100%" />
+      <div slot="footer">
+        <Button @click="pre_image" type="default">上一张</Button>
+        <Button @click="next_image" type="info">下一张</Button>
+      </div>
     </Modal>
 
     <M-Footer :version="site_config.version"></M-Footer>
@@ -372,6 +414,7 @@ import { checkFileType } from "../utils/index";
 import DPlayer from "../components/Dplayer";
 import APlayer from "../components/Aplayer";
 import Footer from "../components/Footer";
+import Vue from "vue";
 
 let cancel;
 let CancelToken;
@@ -447,6 +490,7 @@ export default {
       ],
       loading: true,
       files: [],
+      current_files: [],
       path: [],
       keywords: "",
       search_global: false,
@@ -483,7 +527,14 @@ export default {
         upload: false,
         admin_permission: false,
         version: "v0.0.0"
-      }
+      },
+      page: {
+        page_size: 10,
+        current: 1,
+        total: 0
+      },
+      // 当前image的下标
+      current_image_index: 0
     };
   },
   mounted() {
@@ -497,6 +548,12 @@ export default {
     this.init();
   },
   watch: {
+    page: {
+      handler: function(newValue) {
+        console.log(newValue);
+      },
+      deep: true
+    },
     $route: {
       handler: function() {
         this.init();
@@ -548,6 +605,38 @@ export default {
     }
   },
   methods: {
+    page_size_change(page_size) {
+      this.page.page_size = page_size;
+      this.init();
+    },
+    page_change(page) {
+      console.log(page);
+      this.page.current = page;
+      this.current_files = this.files.slice(
+        (page - 1) * this.page.page_size,
+        page * this.page.page_size
+      );
+    },
+    pre_image() {
+      for (let i = this.current_image_index - 1; i >= 0; i--) {
+        if (checkFileType(this.files[i].name) === "image") {
+          this.img_src = this.baseurl + "d" + this.files[i].path;
+          this.current_image_index = i;
+          return;
+        }
+      }
+      Vue.prototype.$Message.error("已是第一张图片");
+    },
+    next_image() {
+      for (let i = this.current_image_index + 1; i <= this.files.length; i++) {
+        if (checkFileType(this.files[i].name) === "image") {
+          this.img_src = this.baseurl + "d" + this.files[i].path;
+          this.current_image_index = i;
+          return;
+        }
+      }
+      Vue.prototype.$Message.error("已是最后一张图片");
+    },
     preview(path) {
       window.open("https://view.officeapps.live.com/op/view.aspx?src=" + path);
     },
@@ -728,6 +817,12 @@ export default {
           this.modal = true;
         } else {
           this.files = res.data;
+          this.page.total = this.files.length;
+          if (this.files.length > this.page.page_size) {
+            this.current_files = this.files.slice(0, this.page.page_size);
+          } else {
+            this.current_files = this.files;
+          }
           // console.log(this.files.children);
           // this.files.chirden = [];
           // this.files.children.push(...this.files);
@@ -933,6 +1028,7 @@ export default {
     showImage(url, _index) {
       this.img_modal = true;
       this.img_src = url;
+      this.current_image_index = _index;
     },
     checkWidth() {
       this.clientHeight = `${document.documentElement.clientWidth}`;

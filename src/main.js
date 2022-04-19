@@ -16,7 +16,8 @@ import {
   Option,
   ButtonGroup,
   Button,
-  AutoComplete
+  AutoComplete,
+  Page
 } from "view-design";
 
 Vue.prototype.$Message = Message;
@@ -30,6 +31,7 @@ Vue.component("Option", Option);
 Vue.component("ButtonGroup", ButtonGroup);
 Vue.component("Button", Button);
 Vue.component("AutoComplete", AutoComplete);
+Vue.component("Page", Page);
 Vue.config.productionTip = false;
 
 if (process.env.NODE_ENV === "production") {

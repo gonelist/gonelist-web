@@ -1,5 +1,13 @@
 import request from "../utils/request";
 
+export function GetData(URL) {
+  return request({
+    method: "get",
+    url: URL,
+    responseType: "blob"
+  });
+}
+
 export function Mkdir(baseURL, path, folder_name, secret = "") {
   return request({
     method: "get",
