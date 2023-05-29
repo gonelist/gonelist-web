@@ -538,7 +538,7 @@ export default {
         version: "v0.0.0"
       },
       page: {
-        page_size: 10,
+        page_size: 50,
         current: 1,
         total: 0
       },
