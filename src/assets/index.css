@@ -317,3 +317,7 @@ code, pre, tt {
 .file-upload {
     margin-left: .5rem;
 }
+
+.ivu-page {
+    padding: .5rem .24rem;
+}

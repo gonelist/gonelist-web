@@ -11,60 +11,37 @@ export default {
       ap: null,
       options: {
         mini: false,
-        fixed: false,
         autoplay: false,
         theme: "#FADFA3",
-        loop: "none",
+        loop: "all",
+        order: "random",
         preload: "auto",
-        volume: 0.7
+        volume: 0.7,
+        mutex: true,
+        listFolded: false,
+        listMaxHeight: 90
       }
     };
   },
   methods: {
-    play(audio) {
-      console.log("现在播放：", audio);
+    init() {
       this.closeNotice();
       this.ap = new APlayer({
         container: this.$refs.aplayer,
         ...this.options,
-        audio: [audio]
+        audio: []
       });
-      this.$Notice.info({
-        name: "audio",
-        title: "音频",
-        //desc: `正在播放${audio.name}，点击右上角可关闭`,
-        duration: 0,
-        render: h => {
-          return h("span", [
-            "正在播放",
-            h("strong", audio.fullName),
-            h(
-              "p",
-              {
-                style: "paddingTop:10px"
-              },
-              "点击右上角可关闭"
-            )
-          ]);
-        },
-        onClose: () => {
-          this.close();
-        }
-      });
-      this.ap.on("error", () => {
-        this.closeNotice();
-        this.$Message.error("音频播放出错，请重试");
-        this.close();
-      });
+    },
+    updateList(list) {
+      this.closeNotice();
+      this.ap.list.clear();
+      this.ap.list.add(list);
       this.ap.play();
     },
-    switch(audio) {
+    play(index) {
       this.closeNotice();
-      // this.ap.list.add(audio)
-      // this.ap.seek(0)
-      // this.ap.skipForward()
-      // this.ap.list.remove(0)
-      this.play(audio);
+      console.log(index);
+      this.ap.list.switch(index);
     },
     close() {
       this.closeNotice();
