@@ -19,7 +19,7 @@ export default {
         volume: 0.7,
         mutex: true,
         listFolded: false,
-        listMaxHeight: 90
+        listMaxHeight: '90px',
       }
     };
   },
@@ -65,6 +65,7 @@ export default {
 @media (max-width: 768px) {
   .aplayer {
     width: 100%;
+    margin: 0px !important;
   }
 }
 
