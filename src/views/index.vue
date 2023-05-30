@@ -987,7 +987,7 @@ export default {
       this.$refs.myaplayer.updateList(playlist);
       setTimeout(() => {
         const index = playlist.findIndex(item => item.raw.name === name);
-        this.$refs.myaplayer.play(index + 1);
+        this.$refs.myaplayer.play(index);
       }, 20);
     },
     getFileListByType(type) {
